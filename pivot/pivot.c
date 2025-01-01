@@ -4,8 +4,7 @@
 
 int pivot_main(int argc, char **argv) {
     PivotState *pivot = init_pivot(argc, argv);
-    
-    if (pivot->status_code == PIVOT_STATUS_ERR) {
+    if (pivot == NULL) {
         return 1;
     }
 

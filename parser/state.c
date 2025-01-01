@@ -4,6 +4,5 @@
 
 void lexer_state_free(LexerState *state) {
     free(state->source);
-    free(state->error);
     free(state);
 }

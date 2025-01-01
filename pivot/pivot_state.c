@@ -3,10 +3,15 @@
 
 #include "pivot_state.h"
 #include "lexer.h"
+#include "error.h"
 
 PivotState *init_pivot(int argc, char **argv) {
     PivotState *status = (PivotState *)malloc(sizeof(PivotState));
-    status->exec_type = FILE_EXEC;
+    if (!status) {
+        perror("Error allocating memory for interpreter state");
+        return NULL;
+    }
+
     status->status_code = PIVOT_STATUS_OK;
 
     status->pivot_args = argv;
@@ -24,10 +29,11 @@ int pivot_run_main(PivotState *status) {
     char *source_path = status->pivot_args[1];
     LexerState *state = tokenize_file(source_path);
 
-    if (state->statuscode != 0) {
-        printf("Lexer Error: %s", state->error);
+    if (state->error != LEXER_OK) {
+        printf("Lexer Error: %s", out_error(state->error));
         return 1;
     }
 
+    lexer_state_free(state);
     return 0;
 }

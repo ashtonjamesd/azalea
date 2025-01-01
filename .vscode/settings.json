@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "error.h": "c",
+        "token.h": "c"
+    }
+}
