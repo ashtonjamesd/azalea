@@ -1,2 +1,0 @@
-let x: int = 10;
-echo x;
