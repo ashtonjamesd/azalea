@@ -8,7 +8,8 @@ typedef enum LexerTokenType {
     TOKEN_SEMI_COLON,
 
     TOKEN_IDENTIFIER,
-    TOKEN_NUMERIC
+    TOKEN_NUMERIC,
+    TOKEN_EOF
 } LexerTokenType;
 
 typedef struct LexerToken {
