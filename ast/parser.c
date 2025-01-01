@@ -25,10 +25,10 @@ static ParserState *init_parser(LexerToken *tokens) {
 
 static int is_end(ParserState *state) {
     if (state->tokens[state->current].type == TOKEN_EOF) {
-        return 0;
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static inline void advance(ParserState *state) {
@@ -62,12 +62,11 @@ Expression *parse_primary_expression(ParserState *state) {
     if (token.type == TOKEN_NUMERIC) {
         Expression *expr = create_expression(NUMERIC_LITERAL);
         expr->as.num_expr.value = (int)strtol(token.lexeme, NULL, 10);
+        advance(state);
         return expr;
     }
 
-    advance(state);
 }
-
 
 Expression *parse_variable_declaration(ParserState *state) {
     if (!expect(state, TOKEN_LET)) return NULL;
@@ -85,25 +84,28 @@ Expression *parse_variable_declaration(ParserState *state) {
     return expr;
 }
 
-void parse_statement(ParserState *state) {
-    parse_variable_declaration(state);
+Expression *parse_statement(ParserState *state) {
+    return parse_variable_declaration(state);
 }
 
 ParserState *parse_tokens(LexerToken *tokens) {
     ParserState *state = init_parser(tokens);
 
     while (!is_end(state)) {
-        parse_statement(state);
+        Expression *expr = parse_statement(state);
+        if (state->error != NULL || expr == NULL) {
+            printf(state->error);
+            return state;
+        }
 
         if (is_end(state)) {
             return state;
         }
 
-        if (state->error != NULL) {
-            printf(state->error);
-            return state;
-        }
+        state->ast->body[state->ast->expression_count++] = *expr;
     }
+
+    print_ast(state->ast->body, 1);
 
     return state;
 }

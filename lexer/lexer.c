@@ -177,7 +177,7 @@ LexerState *tokenize_file(char *path) {
         advance(state);
     }
 
-    create_token(state, "", TOKEN_EOF);
+    create_token(state, "eof", TOKEN_EOF);
 
     for (int i = 0; i < state->token_count; i++) {
         printf("Token: %s | %d\n", state->tokens[i].lexeme, state->tokens[i].type);

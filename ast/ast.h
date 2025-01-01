@@ -44,4 +44,8 @@ typedef struct Ast {
     int expression_capacity;
 } Ast;
 
+typedef struct ParserState ParserState;
+
+extern void print_ast(Expression *expr, int depth);
+
 #endif
