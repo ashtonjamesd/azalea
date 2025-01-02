@@ -7,6 +7,7 @@ typedef enum ExpressionType {
     IDENTIFIER,
     STRING_LITERAL,
     FLOAT_LITERAL,
+    CHAR_LITERAL
 } ExpressionType;
 
 typedef struct Expression Expression;
@@ -14,6 +15,10 @@ typedef struct Expression Expression;
 typedef struct IdentifierExpression {
     char *identifier;
 } IdentifierExpression;
+
+typedef struct CharLiteralExpression {
+    char value;
+} CharLiteralExpression;
 
 typedef struct FloatLiteralExpression {
     float *value;
@@ -38,6 +43,7 @@ typedef struct Expression {
     union {
         NumericLiteralExpression num_expr;
         StringLiteralExpression str_expr;
+        CharLiteralExpression char_expr;
         FloatLiteralExpression flt_expr;
         VariableDeclaration var_decl;
         IdentifierExpression ident_expr;

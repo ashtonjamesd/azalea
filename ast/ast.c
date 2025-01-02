@@ -19,6 +19,9 @@ void print_ast(Expression *expr, int depth) {
     else if (expr->type == FLOAT_LITERAL) {
         printf("FLOAT_LITERAL: %f\n", *expr->as.flt_expr.value);
     }
+    else if (expr->type == CHAR_LITERAL) {
+        printf("CHAR_LITERAL: %c\n", expr->as.char_expr.value);
+    }
     else if (expr->type == VARIABLE_DECLARATION) {
         printf("VARIABLE_DECLARATION: %s", expr->as.var_decl.identifier);
         if (expr->as.var_decl.expr != NULL) {

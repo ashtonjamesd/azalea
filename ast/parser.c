@@ -80,6 +80,17 @@ static Expression *parse_primary_expression(ParserState *state) {
 
         return expr;
     }
+    else if (token.type == TOKEN_CHAR) {
+        Expression *expr = create_expression(CHAR_LITERAL);
+        expr->as.char_expr.value = strdup(token.lexeme)[0];
+        advance(state);
+
+        return expr;
+    } 
+    else {
+
+        printf("unknown primary expression");
+    }
 }
 
 static Expression *parse_variable_declaration(ParserState *state) {
@@ -122,12 +133,14 @@ ParserState *parse_tokens(LexerToken *tokens) {
         state->ast->body[state->ast->expression_count++] = *expr;
 
         if (is_end(state)) {
-            printf("\n");
-            print_ast(state->ast->body, 0);
-            return state;
+            goto end;
         }
     }
-
+    
+    end:
+    printf("\n");
+    print_ast(state->ast->body, 0);
+    
     return state;
 }
 

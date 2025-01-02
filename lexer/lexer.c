@@ -3,31 +3,42 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "state.h"
-#include "error.h"
 #include "token.h"
+#include "state.h"
 
 static LexerState *init_lexer_state() {
     LexerState *state = (LexerState *)malloc(sizeof(LexerState));
     state->tokens = (LexerToken *)malloc(sizeof(LexerToken) * 2);
     state->current = 0;
-    state->error = LEXER_OK;
+    state->error = NULL;
     state->token_capacity = 2;
     state->token_count = 0;
+    state->line = 1;
 
     return state;
+}
+
+static void raise_lexer_error(LexerState *state, char *error) {
+    state->error = error;
+}
+
+static void raise_defect(LexerState *state, char *error) {
+    char *formatted_error = (char *)malloc(strlen(error));
+    sprintf(formatted_error, "%s on line %d", error, state->line);
+    state->error = formatted_error;
+    free(formatted_error);
 }
 
 static void read_source(LexerState *state, char *path) {
     FILE *fptr = fopen(path, "r");
     if (!fptr) {
-        set_error(state, LEXER_FILE_ERROR);
+        raise_lexer_error(state, "Unable to open source file");
         return;
     }
 
     char *file_ext = strrchr(path, '.');
     if (strcmp(file_ext, ".pv") != 0) {
-        set_error(state, LEXER_FILE_EXT_ERROR);
+        raise_lexer_error(state, "Source file must be a valid pivot (.pv) file");
         return;
     }
 
@@ -37,7 +48,7 @@ static void read_source(LexerState *state, char *path) {
 
     char *buff = (char *)malloc(sz);
     if (!buff) {
-        set_error(state, LEXER_MEMORY_ERROR);
+        raise_lexer_error(state, "Error allocating memory for source file");
         fclose(fptr);
         return;
     }
@@ -87,7 +98,7 @@ static void parse_numeric(LexerState *state) {
     while (!is_end(state) && (isdigit(get_current(state)) || get_current(state) == '.')) {
         if (get_current(state) == '.') {
             if (has_decimal) {
-                set_error(state, LEXER_UNEXPECTED_CHARACTER_ERROR);
+                raise_defect(state, "Invalid numeric literal");
                 return;
             }
 
@@ -172,7 +183,7 @@ static void parse_char(LexerState *state) {
 
     advance(state);
     if (get_current(state) != '\'') {
-        set_error(state, LEXER_EXPECTED_CHARACTER);
+        raise_defect(state, "expected char literal to end with single quote");
         return;
     }
 
@@ -205,7 +216,7 @@ LexerState *tokenize_file(char *path) {
     LexerState *state = init_lexer_state();
     
     read_source(state, path);
-    if (state->error != LEXER_OK) {
+    if (state->error != NULL) {
         return state;
     }
 
@@ -217,7 +228,7 @@ LexerState *tokenize_file(char *path) {
         next_token(state);
         if (get_current(state) == '\0') break;
         
-        if (state->error != LEXER_OK) {
+        if (state->error != NULL) {
             return state;
         }
 

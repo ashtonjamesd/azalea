@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "pivot_state.h"
-#include "error.h"
 #include "state.h"
 #include "lexer.h"
 #include "parser.h"
@@ -32,13 +31,12 @@ int pivot_run_main(PivotState *status) {
     char *source_path = status->pivot_args[1];
     
     LexerState *lexer_state = tokenize_file(source_path);
-    if (lexer_state->error != LEXER_OK) {
-        printf("Lexer Error: %s", out_error(lexer_state->error));
+    if (lexer_state->error != NULL) {
+        printf("%s", lexer_state->error);
         return 1;
     }
 
     ParserState *state = parse_tokens(lexer_state->tokens);
-
 
     lexer_state_free(lexer_state);
     return 0;

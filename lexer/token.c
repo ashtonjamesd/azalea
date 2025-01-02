@@ -6,6 +6,10 @@ const LexerTokenMap keyword_token_type_map[] = {
     {"let", TOKEN_LET},
     {"int", TOKEN_INT_TYPE},
     {"char", TOKEN_CHAR_TYPE},
+    {"float", TOKEN_FLOAT_TYPE},
+    {"bool", TOKEN_BOOL_TYPE},
+    {"true", TOKEN_TRUE},
+    {"false", TOKEN_FALSE},
     {NULL, -1},
 };
 
