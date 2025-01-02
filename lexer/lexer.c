@@ -83,7 +83,7 @@ static inline void advance(LexerState *state) {
 static void parse_numeric(LexerState *state) {
     int start = state->current;
 
-    while (!is_end(state) && isdigit(state->source[state->current])) {
+    while (!is_end(state) && isdigit(get_current(state))) {
         advance(state);
     }
 
@@ -101,7 +101,7 @@ static void parse_numeric(LexerState *state) {
 static void parse_identifier(LexerState *state) {
     int start = state->current;
 
-    while (!is_end(state) && isalnum(state->source[state->current])) {
+    while (!is_end(state) && isalnum(get_current(state))) {
         advance(state);
     }
 
@@ -135,6 +135,27 @@ static int check_symbols(LexerState *state, char current_token) {
     return 0;
 }
 
+static void parse_string(LexerState *state) {
+    int start = state->current;
+
+    advance(state);
+    while (!is_end(state) && get_current(state) != '\"') {
+        advance(state);
+    }
+    advance(state);
+
+    int len = (state->current - start);
+
+    char *lexeme = (char *)malloc(len + 1);
+    strncpy(lexeme, state->source + start, len);
+    
+    lexeme[len] = '\0';
+
+    create_token(state, lexeme, TOKEN_STRING);
+    state->current--;
+}
+
+
 static void next_token(LexerState *state) {
     char current_token = get_current(state);
 
@@ -149,8 +170,8 @@ static void next_token(LexerState *state) {
     else if (isalpha(current_token)) {
         parse_identifier(state);
     }
-    else {
-        set_error(state, LEXER_UNEXPECTED_CHARACTER_ERROR);
+    else if (current_token == '\"') {
+        parse_string(state);
     }
 }
 
