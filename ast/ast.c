@@ -9,7 +9,16 @@ void print_ast(Expression *expr, int depth) {
 
     if (expr->type == NUMERIC_LITERAL) {
         printf("NUMERIC_LITERAL: %d\n", expr->as.num_expr.value);
-    } 
+    }
+    else if (expr->type == IDENTIFIER) {
+        printf("IDENTIFIER: %s\n", expr->as.ident_expr.identifier);
+    }
+    else if (expr->type == STRING_LITERAL) {
+        printf("STRING_LITERAL: %s\n", expr->as.str_expr.value);
+    }
+    else if (expr->type == FLOAT_LITERAL) {
+        printf("FLOAT_LITERAL: %f\n", *expr->as.flt_expr.value);
+    }
     else if (expr->type == VARIABLE_DECLARATION) {
         printf("VARIABLE_DECLARATION: %s", expr->as.var_decl.identifier);
         if (expr->as.var_decl.expr != NULL) {

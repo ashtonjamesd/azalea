@@ -6,6 +6,7 @@
 #include "state.h"
 #include "lexer.h"
 #include "parser.h"
+#include <ast.h>
 
 PivotState *init_pivot(int argc, char **argv) {
     PivotState *status = (PivotState *)malloc(sizeof(PivotState));
@@ -37,7 +38,6 @@ int pivot_run_main(PivotState *status) {
     }
 
     ParserState *state = parse_tokens(lexer_state->tokens);
-    
 
 
     lexer_state_free(lexer_state);

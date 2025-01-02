@@ -6,7 +6,6 @@ OBJ = $(SRC:.c=.o)
 EXEC = main
 
 all: $(EXEC)
-	make clean
 
 $(EXEC): $(OBJ)
 	$(CC) $^ -o $@

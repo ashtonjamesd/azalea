@@ -56,19 +56,33 @@ static inline Expression *create_expression(ExpressionType type) {
     return expr;
 }
 
-Expression *parse_primary_expression(ParserState *state) {
+static Expression *parse_primary_expression(ParserState *state) {
     LexerToken token = get_current(state);
 
     if (token.type == TOKEN_NUMERIC) {
         Expression *expr = create_expression(NUMERIC_LITERAL);
         expr->as.num_expr.value = (int)strtol(token.lexeme, NULL, 10);
         advance(state);
+
         return expr;
     }
+    else if (token.type == TOKEN_IDENTIFIER) {
+        Expression *expr = create_expression(IDENTIFIER);
+        expr->as.ident_expr.identifier = strdup(token.lexeme);
+        advance(state);
 
+        return expr;
+    }
+    else if (token.type == TOKEN_STRING) {
+        Expression *expr = create_expression(STRING_LITERAL);
+        expr->as.str_expr.value = strdup(token.lexeme);
+        advance(state);
+
+        return expr;
+    }
 }
 
-Expression *parse_variable_declaration(ParserState *state) {
+static Expression *parse_variable_declaration(ParserState *state) {
     if (!expect(state, TOKEN_LET)) return NULL;
 
     LexerToken identifier = get_current(state);
@@ -84,8 +98,14 @@ Expression *parse_variable_declaration(ParserState *state) {
     return expr;
 }
 
-Expression *parse_statement(ParserState *state) {
-    return parse_variable_declaration(state);
+static Expression *parse_statement(ParserState *state) {
+    LexerToken token = get_current(state);
+
+    if (token.type == TOKEN_LET) {
+        return parse_variable_declaration(state);
+    } else {
+        return parse_primary_expression(state);
+    }
 }
 
 ParserState *parse_tokens(LexerToken *tokens) {
@@ -93,19 +113,20 @@ ParserState *parse_tokens(LexerToken *tokens) {
 
     while (!is_end(state)) {
         Expression *expr = parse_statement(state);
-        if (state->error != NULL || expr == NULL) {
+
+        if (state->error == NULL || expr == NULL) {
             printf(state->error);
             return state;
         }
 
+        state->ast->body[state->ast->expression_count++] = *expr;
+
         if (is_end(state)) {
+            printf("\n");
+            print_ast(state->ast->body, 0);
             return state;
         }
-
-        state->ast->body[state->ast->expression_count++] = *expr;
     }
-
-    print_ast(state->ast->body, 1);
 
     return state;
 }
