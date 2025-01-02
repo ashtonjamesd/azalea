@@ -132,7 +132,7 @@ ParserState *parse_tokens(LexerToken *tokens) {
 
         state->ast->body[state->ast->expression_count++] = *expr;
 
-        if (is_end(state)) {
+        if (is_end(state) || get_current(state).type == TOKEN_EOF) {
             goto end;
         }
     }

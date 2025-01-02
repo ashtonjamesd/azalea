@@ -225,6 +225,10 @@ LexerState *tokenize_file(char *path) {
             advance(state);
         }
 
+        if (get_current(state) == '\n') {
+            state->line++;
+        }
+
         next_token(state);
         if (get_current(state) == '\0') break;
         
