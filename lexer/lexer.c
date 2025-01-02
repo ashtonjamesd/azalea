@@ -83,7 +83,17 @@ static inline void advance(LexerState *state) {
 static void parse_numeric(LexerState *state) {
     int start = state->current;
 
-    while (!is_end(state) && isdigit(get_current(state))) {
+    int has_decimal = 0;
+    while (!is_end(state) && (isdigit(get_current(state)) || get_current(state) == '.')) {
+        if (get_current(state) == '.') {
+            if (has_decimal) {
+                set_error(state, LEXER_UNEXPECTED_CHARACTER_ERROR);
+                return;
+            }
+
+            has_decimal = 1;
+        }
+
         advance(state);
     }
 
@@ -155,6 +165,19 @@ static void parse_string(LexerState *state) {
     state->current--;
 }
 
+static void parse_char(LexerState *state) {
+    advance(state);
+    char lexeme[2] = {get_current(state), '\0'};
+    create_token(state, strdup(lexeme), TOKEN_CHAR);
+
+    advance(state);
+    if (get_current(state) != '\'') {
+        set_error(state, LEXER_EXPECTED_CHARACTER);
+        return;
+    }
+
+    advance(state);
+}
 
 static void next_token(LexerState *state) {
     char current_token = get_current(state);
@@ -172,6 +195,9 @@ static void next_token(LexerState *state) {
     }
     else if (current_token == '\"') {
         parse_string(state);
+    }
+    else if (current_token == '\'') {
+        parse_char(state);
     }
 }
 

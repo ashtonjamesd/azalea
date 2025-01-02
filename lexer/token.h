@@ -12,8 +12,9 @@ typedef enum LexerTokenType {
     TOKEN_COLON,
 
     TOKEN_IDENTIFIER,
-    TOKEN_STRING,
     TOKEN_NUMERIC,
+    TOKEN_STRING,
+    TOKEN_CHAR,
     TOKEN_EOF
 } LexerTokenType;
 

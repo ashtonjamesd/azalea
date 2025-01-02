@@ -13,6 +13,7 @@ char *out_error(LexerError error) {
         case LEXER_FILE_ERROR: return "Error reading file";
         case LEXER_MEMORY_ERROR: return "Error allocating memory";
         case LEXER_UNEXPECTED_CHARACTER_ERROR: return "Unexpected character";
+        case LEXER_EXPECTED_CHARACTER: return "Unexpected character";
     }
 
     return "Unknown Error";

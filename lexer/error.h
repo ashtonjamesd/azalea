@@ -9,6 +9,7 @@ typedef enum LexerError {
     LEXER_FILE_EXT_ERROR,
     LEXER_MEMORY_ERROR,
     LEXER_UNEXPECTED_CHARACTER_ERROR,
+    LEXER_EXPECTED_CHARACTER,
 } LexerError;
 
 extern void set_error(struct LexerState *state, LexerError error);
