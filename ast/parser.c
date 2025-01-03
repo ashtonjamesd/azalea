@@ -108,7 +108,8 @@ static Expression *parse_primary_expression(ParserState *state) {
         return expr;
     }
     else {
-        printf("unknown primary expression %s", token.lexeme);
+        state->error = "Unknown primary expression";
+        return NULL;
     }
 }
 
@@ -146,7 +147,6 @@ ParserState *parse_tokens(LexerToken *tokens) {
         Expression *expr = parse_statement(state);
 
         if (state->error != NULL) {
-            printf(state->error);
             return state;
         }
 

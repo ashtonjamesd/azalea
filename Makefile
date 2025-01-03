@@ -12,9 +12,3 @@ $(EXEC): $(OBJ)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-
-clean:
-	rm pivot/*.o
-	rm lexer/*.o
-	rm ast/*.o
-	rm tests/*.o
