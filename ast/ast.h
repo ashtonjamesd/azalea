@@ -58,6 +58,6 @@ typedef struct Ast {
 
 typedef struct ParserState ParserState;
 
-extern void print_ast(Expression *expr, int depth);
+extern void print_ast_body(Ast *ast);
 
 #endif

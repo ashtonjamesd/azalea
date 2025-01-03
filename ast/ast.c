@@ -1,37 +1,62 @@
 #include <stdio.h>
-
 #include "parser.h"
 
-void print_ast(Expression *expr, int depth) {
+void print_ast_recursive(Expression *expr, int depth) {
+    if (expr == NULL) {
+        for (int i = 0; i < depth; i++) {
+            printf("  ");
+        }
+        printf("NULL Expression\n");
+        return;
+    }
+
     for (int i = 0; i < depth; i++) {
         printf("  ");
     }
 
-    if (expr->type == NUMERIC_LITERAL) {
-        printf("NUMERIC_LITERAL: %d\n", expr->as.num_expr.value);
+
+    switch (expr->type) {
+        case NUMERIC_LITERAL:
+            printf("NUMERIC_LITERAL: %d\n", expr->as.num_expr.value);
+            break;
+
+        case IDENTIFIER:
+            printf("IDENTIFIER: %s\n", expr->as.ident_expr.identifier);
+            break;
+
+        case STRING_LITERAL:
+            printf("STRING_LITERAL: %s\n", expr->as.str_expr.value);
+            break;
+
+        case FLOAT_LITERAL:
+            printf("FLOAT_LITERAL: %f\n", *expr->as.flt_expr.value);
+            break;
+
+        case CHAR_LITERAL:
+            printf("CHAR_LITERAL: %c\n", expr->as.char_expr.value);
+            break;
+
+        case VARIABLE_DECLARATION:
+            printf("VARIABLE_DECLARATION: %s\n", expr->as.var_decl.identifier);
+            if (expr->as.var_decl.expr != NULL) {
+                print_ast_recursive(expr->as.var_decl.expr, depth + 1);
+            }
+            break;
+
+        default:
+            printf("Unknown Expression Type\n");
+            break;
     }
-    else if (expr->type == IDENTIFIER) {
-        printf("IDENTIFIER: %s\n", expr->as.ident_expr.identifier);
+}
+
+void print_ast_body(Ast *ast) {
+    if (ast == NULL || ast->body == NULL) {
+        printf("AST or AST body is NULL\n");
+        return;
     }
-    else if (expr->type == STRING_LITERAL) {
-        printf("STRING_LITERAL: %s\n", expr->as.str_expr.value);
-    }
-    else if (expr->type == FLOAT_LITERAL) {
-        printf("FLOAT_LITERAL: %f\n", *expr->as.flt_expr.value);
-    }
-    else if (expr->type == CHAR_LITERAL) {
-        printf("CHAR_LITERAL: %c\n", expr->as.char_expr.value);
-    }
-    else if (expr->type == VARIABLE_DECLARATION) {
-        printf("VARIABLE_DECLARATION: %s", expr->as.var_decl.identifier);
-        if (expr->as.var_decl.expr != NULL) {
-            printf(" = ");
-            print_ast(expr->as.var_decl.expr, depth + 1);
-        } else {
-            printf("\n");
-        }
-    } 
-    else {
-        printf("Unknown Expression Type\n");
+
+    for (int i = 0; i < ast->expression_count; i++) {
+        printf("\nExpression %d:\n", i + 1);
+        print_ast_recursive(&ast->body[i], 1);
     }
 }
