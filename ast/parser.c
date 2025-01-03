@@ -113,6 +113,85 @@ static Expression *parse_primary_expression(ParserState *state) {
     }
 }
 
+void free_expression(Expression *expr) {
+    if (!expr) return;
+    switch (expr->type) {
+        case STRING_LITERAL:
+            free(expr->as.str_expr.value);
+            break;
+        case IDENTIFIER:
+            free(expr->as.ident_expr.identifier);
+            break;
+        case VARIABLE_DECLARATION:
+            free(expr->as.var_decl.identifier);
+            free_expression(expr->as.var_decl.expr);
+            break;
+        case FUNCTION_CALL:
+            free(expr->as.func_call.identifier);
+            for (int i = 0; i < expr->as.func_call.arg_count; i++) {
+                free_expression(expr->as.func_call.arguments[i]);
+            }
+            free(expr->as.func_call.arguments);
+            break;
+        default:
+            break;
+    }
+    free(expr);
+}
+
+
+static Expression *parse_function_call(ParserState *state) {
+    char *func_name = get_current(state).lexeme;
+    advance(state);
+
+    if (!expect(state, TOKEN_LEFT_PAREN)) return NULL;
+
+    Expression **arguments = NULL;
+    int arg_count = 0;
+
+    if (get_current(state).type != TOKEN_RIGHT_PAREN) {
+        do {
+            Expression *arg_expr = parse_primary_expression(state);
+            if (!arg_expr) {
+                for (int i = 0; i < arg_count; i++) {
+                    free_expression(arguments[i]);
+                }
+                return NULL;
+            }
+
+            arguments = realloc(arguments, (arg_count + 1) * sizeof(Expression *));
+            arguments[arg_count++] = arg_expr;
+
+            advance(state);
+        } while (get_current(state).type == TOKEN_COMMA);
+    }
+
+    state->current--;
+
+    if (!expect(state, TOKEN_RIGHT_PAREN)) {
+        for (int i = 0; i < arg_count; i++) {
+            free_expression(arguments[i]);
+        }
+        free(arguments);
+        return NULL;
+    }
+
+    if (!expect(state, TOKEN_SEMI_COLON)) {
+        for (int i = 0; i < arg_count; i++) {
+            free_expression(arguments[i]);
+        }
+        free(arguments);
+        return NULL;
+    }
+
+    Expression *expr = create_expression(FUNCTION_CALL);
+    expr->as.func_call.identifier = strdup(func_name);
+    expr->as.func_call.arguments = arguments;
+    expr->as.func_call.arg_count = arg_count;
+
+    return expr;
+}
+
 static Expression *parse_variable_declaration(ParserState *state) {
     if (!expect(state, TOKEN_LET)) return NULL;
 
@@ -133,18 +212,26 @@ static Expression *parse_variable_declaration(ParserState *state) {
 static Expression *parse_statement(ParserState *state) {
     LexerToken token = get_current(state);
 
-    if (token.type == TOKEN_LET) {
-        return parse_variable_declaration(state);
-    } else {
-        return parse_primary_expression(state);
+    switch (token.type) {
+        case TOKEN_LET:
+            return parse_variable_declaration(state);
+        case TOKEN_IDENTIFIER:
+            return parse_function_call(state);
+        default:
+            return parse_primary_expression(state);
     }
 }
+
 
 ParserState *parse_tokens(LexerToken *tokens) {
     ParserState *state = init_parser(tokens);
 
     while (!is_end(state)) {
         Expression *expr = parse_statement(state);
+        if (!expr) {
+            printf("NULL expression");
+            return state;
+        }
 
         if (state->error != NULL) {
             return state;

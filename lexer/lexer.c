@@ -198,7 +198,6 @@ static void next_token(LexerState *state) {
     char current_token = get_current(state);
 
     if (check_symbols(state, current_token)) {
-        advance(state);
         return;
     }
 

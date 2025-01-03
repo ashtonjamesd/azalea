@@ -40,13 +40,10 @@ int pivot_run_main(PivotState *status) {
         return 1;
     }
 
-    return 0;
-
     ParserState *parser_state = parse_tokens(lexer_state->tokens);
     if (parser_state->error != NULL) {
         printf("%s", parser_state->error);
         return 1;
-
     }
     
     parser_state_free(parser_state);

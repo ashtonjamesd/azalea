@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "function_registry.h"
+#include "io.h"
 
 #define MAX_FUNCTIONS 100
 static int function_count;
@@ -26,10 +27,6 @@ FunctionPointer get_function(const char *name) {
     return NULL;
 }
 
-void print_to_stdout(char *out) {
-    printf("%s\n", out);
-}
-
 void initialise_registry() {
-    register_function("print", &print_to_stdout);
+    register_function("print", &_pivot_print);
 }

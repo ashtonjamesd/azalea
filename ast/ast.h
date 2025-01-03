@@ -8,7 +8,8 @@ typedef enum ExpressionType {
     STRING_LITERAL,
     FLOAT_LITERAL,
     CHAR_LITERAL,
-    BOOL_LITERAL
+    BOOL_LITERAL,
+    FUNCTION_CALL
 } ExpressionType;
 
 typedef struct Expression Expression;
@@ -42,6 +43,12 @@ typedef struct VariableDeclaration {
     Expression *expr;
 } VariableDeclaration;
 
+typedef struct FunctionCall {
+    char *identifier;
+    Expression **arguments;
+    int arg_count;
+} FunctionCall;
+
 typedef struct Expression {
     ExpressionType type;
 
@@ -53,6 +60,7 @@ typedef struct Expression {
         BoolLiteralExpression bool_expr;
         VariableDeclaration var_decl;
         IdentifierExpression ident_expr;
+        FunctionCall func_call;
     } as;
 } Expression;
 

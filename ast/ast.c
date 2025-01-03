@@ -47,6 +47,10 @@ void print_ast_recursive(Expression *expr, int depth) {
             }
             break;
 
+        case FUNCTION_CALL:
+            printf("FUNCTION_CALL: %s", expr->as.func_call.identifier);
+            break;
+            
         default:
             printf("Unknown Expression Type\n");
             break;
