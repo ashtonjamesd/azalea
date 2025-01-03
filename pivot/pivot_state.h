@@ -1,6 +1,7 @@
 #ifndef PIVOT_STATUS_H
 #define PIVOT_STATUS_H
 
+
 typedef struct PivotState {
     int pivot_args_count;
     char **pivot_args;

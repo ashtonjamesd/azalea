@@ -6,6 +6,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "ast.h"
+#include "function_registry.h"
 
 PivotState *init_pivot(int argc, char **argv) {
     PivotState *status = (PivotState *)malloc(sizeof(PivotState));
@@ -25,6 +26,10 @@ int pivot_run_main(PivotState *status) {
         printf("Expected argument: source file path");
         return 1;
     }
+
+    initialise_registry();
+    FunctionPointer x = get_function("print");
+    x("Hello, World!");
 
     char *source_path = status->pivot_args[1];
     
