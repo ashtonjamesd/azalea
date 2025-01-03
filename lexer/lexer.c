@@ -249,7 +249,5 @@ void tokenize_file(LexerState *state, char *path) {
 
     create_token(state, "eof", TOKEN_EOF);
 
-    if (state->print_debug == 1) {
-        print_lexer(state);
-    }
+    if (state->print_debug) print_lexer(state);
 }

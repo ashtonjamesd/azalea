@@ -5,6 +5,8 @@
 typedef struct PivotState {
     int pivot_args_count;
     char **pivot_args;
+
+    int debug_mode;
 } PivotState;
 
 extern PivotState *init_pivot(int argc, char **argv);

@@ -9,9 +9,12 @@ typedef struct ParserState {
     int current;
     char *error;
     Ast *ast;
+
+    int debug_mode;
 } ParserState;
 
-extern ParserState *parse_tokens(LexerToken* tokens);
+extern void parse_tokens(ParserState *state);
 extern void parser_state_free(ParserState *state);
+extern ParserState *init_parser(LexerToken *tokens);
 
 #endif

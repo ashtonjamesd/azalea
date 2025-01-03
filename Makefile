@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 CC = gcc
-CFLAGS = -Iinclude -Ipivot -Ilexer -Iast -Itests -Iregistry -Istdlib -Wall -Wextra -g
-SRC = pivot/pivot.c pivot/pivot_state.c lexer/state.c lexer/lexer.c lexer/token.c ast/parser.c ast/ast.c tests/lexer_tests.c tests/tests.c registry/function_registry.c stdlib/io.c
+CFLAGS = -Iinclude -Ipivot -Ilexer -Iast -Itests -Iregistry -Istdlib -Iinterpreter -Wall -Wextra -g
+SRC = pivot/pivot.c pivot/pivot_state.c lexer/state.c lexer/lexer.c lexer/token.c ast/parser.c ast/ast.c tests/lexer_tests.c tests/tests.c registry/function_registry.c stdlib/io.c interpreter/interpreter.c
 OBJ = $(SRC:.c=.o)
 EXEC = main
 

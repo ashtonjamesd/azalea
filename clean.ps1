@@ -4,3 +4,4 @@ Remove-Item ast/*.o
 Remove-Item tests/*.o
 Remove-Item registry/*.o
 Remove-Item stdlib/*.o
+Remove-Item interpreter/*.o

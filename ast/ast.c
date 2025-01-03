@@ -50,7 +50,7 @@ void print_ast_recursive(Expression *expr, int depth) {
         case FUNCTION_CALL:
             printf("FUNCTION_CALL: %s", expr->as.func_call.identifier);
             break;
-            
+
         default:
             printf("Unknown Expression Type\n");
             break;
@@ -58,6 +58,8 @@ void print_ast_recursive(Expression *expr, int depth) {
 }
 
 void print_ast_body(Ast *ast) {
+    printf("\n");
+
     if (ast == NULL || ast->body == NULL) {
         printf("AST or AST body is NULL\n");
         return;

@@ -19,7 +19,7 @@ static Ast *init_ast() {
 }
 
 
-static ParserState *init_parser(LexerToken *tokens) {
+ParserState *init_parser(LexerToken *tokens) {
     ParserState *state = (ParserState *)malloc(sizeof(ParserState));
     state->ast = init_ast();
     state->tokens = tokens;
@@ -223,18 +223,16 @@ static Expression *parse_statement(ParserState *state) {
 }
 
 
-ParserState *parse_tokens(LexerToken *tokens) {
-    ParserState *state = init_parser(tokens);
-
+void parse_tokens(ParserState *state) {
     while (!is_end(state)) {
         Expression *expr = parse_statement(state);
         if (!expr) {
             printf("NULL expression");
-            return state;
+            return;
         }
 
         if (state->error != NULL) {
-            return state;
+            return;
         }
 
         if (state->ast->expression_count >= state->ast->expression_capacity) {
@@ -245,15 +243,13 @@ ParserState *parse_tokens(LexerToken *tokens) {
         state->ast->body[state->ast->expression_count++] = *expr;
 
         if (is_end(state) || get_current(state).type == TOKEN_EOF) {
-            goto end;
+            if (state->debug_mode) {
+                print_ast_body(state->ast);
+            }
+
+            break;
         }
     }
-    
-    end:
-    printf("\n");
-    print_ast_body(state->ast);
-    
-    return state;
 }
 
 void parser_state_free(ParserState *state) {

@@ -7,6 +7,7 @@
 #include "parser.h"
 #include "ast.h"
 #include "function_registry.h"
+#include "interpreter.h"
 
 PivotState *init_pivot(int argc, char **argv) {
     PivotState *status = (PivotState *)malloc(sizeof(PivotState));
@@ -17,35 +18,42 @@ PivotState *init_pivot(int argc, char **argv) {
 
     status->pivot_args = argv;
     status->pivot_args_count = argc;
+    status->debug_mode = 0;
 
     return status;
 }
 
-int pivot_run_main(PivotState *status) {
-    if (status->pivot_args_count < 2) {
+int pivot_run_main(PivotState *state) {
+    if (state->pivot_args_count < 2) {
         printf("Expected argument: source file path");
         return 1;
     }
 
     initialise_registry();
-    FunctionPointer x = get_function("print");
-    x("Hello, World!");
 
-    char *source_path = status->pivot_args[1];
-    
+    char *source_path = state->pivot_args[1];
     LexerState *lexer_state = init_lexer_state();
+    lexer_state->print_debug = state->debug_mode;
+
     tokenize_file(lexer_state, source_path);
     if (lexer_state->error != NULL) {
         printf("%s", lexer_state->error);
         return 1;
     }
 
-    ParserState *parser_state = parse_tokens(lexer_state->tokens);
+    
+    ParserState *parser_state = init_parser(lexer_state->tokens);
+    parser_state->debug_mode = state->debug_mode;
+
+    parse_tokens(parser_state);
     if (parser_state->error != NULL) {
         printf("%s", parser_state->error);
         return 1;
     }
+
+    interpret_ast(parser_state->ast);
     
+    // free interpreter
     parser_state_free(parser_state);
     lexer_state_free(lexer_state);
     return 0;
