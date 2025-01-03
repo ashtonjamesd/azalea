@@ -187,8 +187,6 @@ static void parse_char(LexerState *state) {
         raise_defect(state, "expected char literal to end with single quote");
         return;
     }
-
-    advance(state);
 }
 
 static void next_token(LexerState *state) {
@@ -222,6 +220,7 @@ void print_lexer(LexerState *state) {
 void tokenize_file(LexerState *state, char *path) {
     read_source(state, path);
     if (state->error != NULL) {
+        printf("%s\n", state->error);
         return;
     }
 
