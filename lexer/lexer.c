@@ -6,7 +6,7 @@
 #include "token.h"
 #include "state.h"
 
-static LexerState *init_lexer_state() {
+LexerState *init_lexer_state() {
     LexerState *state = (LexerState *)malloc(sizeof(LexerState));
     state->tokens = (LexerToken *)malloc(sizeof(LexerToken) * 2);
     state->current = 0;
@@ -14,6 +14,7 @@ static LexerState *init_lexer_state() {
     state->token_capacity = 2;
     state->token_count = 0;
     state->line = 1;
+    state->print_debug = 1;
 
     return state;
 }
@@ -212,12 +213,16 @@ static void next_token(LexerState *state) {
     }
 }
 
-LexerState *tokenize_file(char *path) {
-    LexerState *state = init_lexer_state();
-    
+void print_lexer(LexerState *state) {
+    for (int i = 0; i < state->token_count; i++) {
+        printf("Token: %s | %d\n", state->tokens[i].lexeme, state->tokens[i].type);
+    }
+}
+
+void tokenize_file(LexerState *state, char *path) {
     read_source(state, path);
     if (state->error != NULL) {
-        return state;
+        return;
     }
 
     while (get_current(state) != '\0') {
@@ -233,7 +238,7 @@ LexerState *tokenize_file(char *path) {
         if (get_current(state) == '\0') break;
         
         if (state->error != NULL) {
-            return state;
+            return;
         }
 
         advance(state);
@@ -241,9 +246,7 @@ LexerState *tokenize_file(char *path) {
 
     create_token(state, "eof", TOKEN_EOF);
 
-    for (int i = 0; i < state->token_count; i++) {
-        printf("Token: %s | %d\n", state->tokens[i].lexeme, state->tokens[i].type);
+    if (state->print_debug == 1) {
+        print_lexer(state);
     }
-
-    return state;
 }

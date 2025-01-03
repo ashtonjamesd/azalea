@@ -5,7 +5,7 @@
 #include "state.h"
 #include "lexer.h"
 #include "parser.h"
-#include <ast.h>
+#include "ast.h"
 
 PivotState *init_pivot(int argc, char **argv) {
     PivotState *status = (PivotState *)malloc(sizeof(PivotState));
@@ -30,7 +30,8 @@ int pivot_run_main(PivotState *status) {
 
     char *source_path = status->pivot_args[1];
     
-    LexerState *lexer_state = tokenize_file(source_path);
+    LexerState *lexer_state = init_lexer_state();
+    tokenize_file(lexer_state, source_path);
     if (lexer_state->error != NULL) {
         printf("%s", lexer_state->error);
         return 1;

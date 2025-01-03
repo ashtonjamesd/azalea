@@ -24,6 +24,7 @@ static ParserState *init_parser(LexerToken *tokens) {
     state->ast = init_ast();
     state->tokens = tokens;
     state->current = 0;
+    state->error = NULL;
 
     return state;
 }
@@ -93,8 +94,7 @@ static Expression *parse_primary_expression(ParserState *state) {
         return expr;
     } 
     else {
-
-        printf("unknown primary expression");
+        printf("unknown primary expression %s", token.lexeme);
     }
 }
 
@@ -110,7 +110,8 @@ static Expression *parse_variable_declaration(ParserState *state) {
     expr->as.var_decl.identifier = strdup(identifier.lexeme);
     expr->as.var_decl.expr = parse_primary_expression(state);
 
-    if (!expect(state, TOKEN_SEMI_COLON)) return NULL;
+    advance(state);
+
     return expr;
 }
 
@@ -130,7 +131,7 @@ ParserState *parse_tokens(LexerToken *tokens) {
     while (!is_end(state)) {
         Expression *expr = parse_statement(state);
 
-        if (state->error == NULL || expr == NULL) {
+        if (state->error != NULL) {
             printf(state->error);
             return state;
         }

@@ -11,6 +11,10 @@ typedef struct LexerState {
     int token_count;
     int token_capacity;
     int line;
+
+    // set to 1 if the tokens should be written to stdout
+    int print_debug;
+    
 } LexerState;
 
 extern void lexer_state_free(LexerState *state);
