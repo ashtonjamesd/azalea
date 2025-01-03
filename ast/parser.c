@@ -92,7 +92,21 @@ static Expression *parse_primary_expression(ParserState *state) {
         advance(state);
 
         return expr;
-    } 
+    }
+    else if (token.type == TOKEN_FLOAT) {
+        Expression *expr = create_expression(FLOAT_LITERAL);
+        expr->as.flt_expr.value = (float)strtol(token.lexeme, NULL, 10);
+        advance(state);
+
+        return expr;
+    }
+    else if (token.type == TOKEN_FALSE || token.type == TOKEN_TRUE) {
+        Expression *expr = create_expression(BOOL_LITERAL);
+        expr->as.bool_expr.value = strcmp(token.lexeme, "true") == 0 ? 1 : 0;
+        advance(state);
+
+        return expr;
+    }
     else {
         printf("unknown primary expression %s", token.lexeme);
     }

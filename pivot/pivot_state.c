@@ -14,8 +14,6 @@ PivotState *init_pivot(int argc, char **argv) {
         return NULL;
     }
 
-    status->status_code = PIVOT_STATUS_OK;
-
     status->pivot_args = argv;
     status->pivot_args_count = argc;
 

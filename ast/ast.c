@@ -29,7 +29,11 @@ void print_ast_recursive(Expression *expr, int depth) {
             break;
 
         case FLOAT_LITERAL:
-            printf("FLOAT_LITERAL: %f\n", *expr->as.flt_expr.value);
+            printf("FLOAT_LITERAL: %f\n", expr->as.flt_expr.value);
+            break;
+
+        case BOOL_LITERAL:
+            printf("BOOL_LITERAL: %d\n", expr->as.bool_expr.value);
             break;
 
         case CHAR_LITERAL:

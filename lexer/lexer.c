@@ -116,7 +116,12 @@ static void parse_numeric(LexerState *state) {
     
     lexeme[len] = '\0';
 
-    create_token(state, lexeme, TOKEN_NUMERIC);
+    if (has_decimal) {
+        create_token(state, lexeme, TOKEN_FLOAT);
+    } else {
+        create_token(state, lexeme, TOKEN_NUMERIC);
+    }
+
     state->current--;
 }
 

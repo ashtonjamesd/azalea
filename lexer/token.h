@@ -17,6 +17,7 @@ typedef enum LexerTokenType {
 
     TOKEN_NUMERIC,
     TOKEN_STRING,
+    TOKEN_FLOAT,
     TOKEN_CHAR,
     TOKEN_TRUE,
     TOKEN_FALSE,
