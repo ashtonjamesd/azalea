@@ -171,10 +171,10 @@ static void parse_string(LexerState *state) {
     }
     advance(state);
 
-    int len = (state->current - start);
+    int len = (state->current - start - 2);
 
-    char *lexeme = (char *)malloc(len + 1);
-    strncpy(lexeme, state->source + start, len);
+    char *lexeme = (char *)malloc(len);
+    strncpy(lexeme, state->source + start + 1, len);
     
     lexeme[len] = '\0';
 
