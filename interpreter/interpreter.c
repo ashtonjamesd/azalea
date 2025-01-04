@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "interpreter.h"
 #include "function_registry.h"
@@ -10,12 +11,28 @@ static PivotInterpreter *init_interpreter(Ast *ast) {
     PivotInterpreter *interpreter = (PivotInterpreter *)malloc(sizeof(PivotInterpreter));
     interpreter->symbols = init_symbol_table();
     interpreter->ast = ast;
+    interpreter->used_modules_count = 0;
 
     return interpreter;
 }
 
 void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
-    FunctionPointer func = get_function(expr->as.func_call.identifier);
+    int has_module = 0;
+    for (int i = 0; i < interpreter->used_modules_count; i++) {
+        if (expr->as.func_call.module == NULL) break;
+        
+        if (strcmp(interpreter->used_modules[i], expr->as.func_call.module) == 0) {
+            has_module = 1;
+            break;
+        }
+    }
+    
+    if (!has_module && expr->as.func_call.module != NULL) {
+        printf("undefined module '%s'", expr->as.func_call.module);
+        return;
+    }
+
+    FunctionPointer func = get_function(expr->as.func_call.module, expr->as.func_call.identifier);
     if (func == NULL) {
         printf("undefined function '%s'", expr->as.func_call.identifier);
         return;
@@ -65,6 +82,17 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
     }
 }
 
+void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
+    for (int i = 0; i < interpreter->used_modules_count; i++) {
+        if (strcmp(interpreter->used_modules[i], expr->as.use_mod_expr.module) == 0) {
+            printf("module already used");
+            return;
+        }
+    }
+
+    interpreter->used_modules[interpreter->used_modules_count++] = expr->as.use_mod_expr.module;
+}
+
 void execute_statement(PivotInterpreter *interpreter, Expression *expr) {
     switch (expr->type) {
         case VARIABLE_DECLARATION:
@@ -77,6 +105,10 @@ void execute_statement(PivotInterpreter *interpreter, Expression *expr) {
 
         case ASSIGNMENT_EXPR:
             execute_assignment_expression(interpreter, expr);
+            break;
+
+        case USE_MODULE_STMT:
+            execute_use_module_stmt(interpreter, expr);
             break;
 
         default:

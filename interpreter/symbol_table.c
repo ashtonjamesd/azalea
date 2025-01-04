@@ -4,7 +4,7 @@
 
 #include "symbol_table.h"
 
-void set_variable(SymbolTable *table, const char *name, VariableType type, void *val) {
+void set_variable(SymbolTable *table, char *name, VariableType type, void *val) {
     VariableSymbol *existing_var = get_variable(table, name);
     if (existing_var != NULL) {
             if (type == VAR_TYPE_STR) {

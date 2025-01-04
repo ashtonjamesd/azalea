@@ -1,6 +1,9 @@
 #ifndef FUNCTION_REGISTRY_H
 #define FUNCTION_REGISTRY_H
 
+#define MAX_FUNCTIONS 100
+#define MAX_MODULES 10
+
 typedef void (*FunctionPointer)(void *args);
 
 typedef struct FunctionRegistryEntry {
@@ -8,8 +11,14 @@ typedef struct FunctionRegistryEntry {
     FunctionPointer func;
 } FunctionRegistryEntry;
 
-extern void register_function(char *name, void *func);
-extern FunctionPointer get_function(const char *name);
+typedef struct FunctionRegistryModule {
+    char *name;
+    FunctionRegistryEntry functions[MAX_FUNCTIONS];
+    int function_count;
+} FunctionRegistryModule;
+
+extern void register_function(char *module, char *name, void *func);
+extern FunctionPointer get_function(char *module, const char *name);
 extern void initialise_registry();
 
 #endif

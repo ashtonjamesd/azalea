@@ -5,22 +5,57 @@
 #include "function_registry.h"
 #include "io.h"
 
-#define MAX_FUNCTIONS 100
-static int function_count;
+static int module_count = 0;
 
-static FunctionRegistryEntry registry[MAX_FUNCTIONS];
+static FunctionRegistryModule modules[MAX_MODULES];
 
-void register_function(char *name, void *func) {
-    registry[function_count].name = name;
-    registry[function_count].func = func;
+void register_module(char *name) {
+    for (int i = 0; i < module_count; i++) {
+        if (strcmp(modules[i].name, name) == 0) {
+            return;
+        }
+    }
 
-    function_count++;
+    if (module_count < MAX_MODULES) {
+        modules[module_count].name = strdup(name);
+        modules[module_count].function_count = 0;
+        module_count++;
+    } else {
+        printf("Maximum module limit reached!\n");
+    }
 }
 
-FunctionPointer get_function(const char *name) {
-    for (int i = 0; i < function_count; i++) {
-        if (strcmp(registry[i].name, name) == 0) {
-            return registry[i].func;
+void register_function(char *module, char *name, void *func) {
+    FunctionRegistryModule *module_entry = NULL;
+    
+    for (int i = 0; i < module_count; i++) {
+        if (strcmp(modules[i].name, module) == 0) {
+            module_entry = &modules[i];
+            break;
+        }
+    }
+
+    if (!module) {
+        register_module(module);
+        module_entry = &modules[module_count++];
+    }
+
+
+    module_entry->functions[module_entry->function_count].name = strdup(name);
+    module_entry->functions[module_entry->function_count].func = (FunctionPointer)func;
+    module_entry->function_count++;
+}
+
+FunctionPointer get_function(char *module, const char *name) {
+    if (module == NULL) return NULL;
+
+    for (int i = 0; i < module_count; i++) {
+        if (strcmp(modules[i].name, module) == 0) {
+            for (int j = 0; j < modules[i].function_count; j++) {
+                if (strcmp(modules[i].functions[j].name, name) == 0) {
+                    return modules[i].functions[j].func;
+                }
+            }
         }
     }
 
@@ -28,6 +63,22 @@ FunctionPointer get_function(const char *name) {
 }
 
 void initialise_registry() {
-    register_function("print", &_pivot_print);
-    register_function("println", &_pivot_println);
+    register_module("std");
+
+    register_function("std", "print", &_pivot_print);
+    register_function("std", "println", &_pivot_println);
+
+    printf("\n\n");
+    for (int i = 0; i < module_count; i++) {
+        printf("Registered Module: '%s' with %d functions", modules[i].name, modules[i].function_count);
+    }
+
+    printf("\n\n");
+    for (int i = 0; i < module_count; i++) {
+        printf("%s:\n", modules[i].name);
+
+        for (int j = 0; j < modules[j].function_count; j++) {
+            printf("  Func: %s\n", modules[i].functions[j].name);
+        }
+    }
 }

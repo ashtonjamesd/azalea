@@ -10,6 +10,7 @@ const LexerTokenMap keyword_token_type_map[] = {
     {"bool", TOKEN_BOOL_TYPE},
     {"true", TOKEN_TRUE},
     {"false", TOKEN_FALSE},
+    {"use", TOKEN_USE},
     {NULL, -1},
 };
 

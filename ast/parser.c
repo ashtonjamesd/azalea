@@ -163,6 +163,13 @@ void free_expression(Expression *expr) {
 
 
 static Expression *parse_function_call(ParserState *state) {
+    char *module = NULL;
+    if (peek(state).type == TOKEN_DOT) {
+        module = get_current(state).lexeme;
+        advance(state);
+    }
+
+    if (module != NULL) advance(state);
     char *func_name = get_current(state).lexeme;
     advance(state);
 
@@ -212,6 +219,7 @@ static Expression *parse_function_call(ParserState *state) {
     expr->as.func_call.identifier = strdup(func_name);
     expr->as.func_call.arguments = arguments;
     expr->as.func_call.arg_count = arg_count;
+    expr->as.func_call.module = strdup(module);
 
     return expr;
 }
@@ -268,6 +276,22 @@ static Expression *parse_identifier(ParserState *state) {
     }
 }
 
+static Expression *parse_use_stmt(ParserState *state) {
+    advance(state);
+
+    LexerToken module = get_current(state);
+    advance(state);
+
+    Expression *expr = create_expression(USE_MODULE_STMT);
+    expr->as.use_mod_expr.module = strdup(module.lexeme);
+
+    if (!expect(state, TOKEN_SEMI_COLON, ";")) {
+        return NULL;
+    }
+
+    return expr;
+}
+
 static Expression *parse_statement(ParserState *state) {
     LexerToken token = get_current(state);
 
@@ -276,6 +300,8 @@ static Expression *parse_statement(ParserState *state) {
             return parse_variable_declaration(state);
         case TOKEN_IDENTIFIER:
             return parse_identifier(state);
+        case TOKEN_USE:
+            return parse_use_stmt(state);
         default:
             return parse_primary_expression(state);
     }

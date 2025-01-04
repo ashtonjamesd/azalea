@@ -9,6 +9,7 @@ all: $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CC) $^ -o $@
+	pwsh ./clean.ps1
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

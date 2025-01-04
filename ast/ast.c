@@ -55,7 +55,11 @@ void print_ast_recursive(Expression *expr, int depth) {
             break;
 
         case FUNCTION_CALL:
-            printf("FUNCTION_CALL: %s", expr->as.func_call.identifier);
+            printf("FUNCTION_CALL: [%s].%s", expr->as.func_call.module, expr->as.func_call.identifier);
+            break;
+
+        case USE_MODULE_STMT:
+            printf("USE_MODULE_STMT: %s", expr->as.use_mod_expr.module);
             break;
 
         default:

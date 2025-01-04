@@ -10,7 +10,8 @@ typedef enum ExpressionType {
     CHAR_LITERAL,
     BOOL_LITERAL,
     FUNCTION_CALL,
-    ASSIGNMENT_EXPR
+    ASSIGNMENT_EXPR,
+    USE_MODULE_STMT,
 } ExpressionType;
 
 typedef struct Expression Expression;
@@ -48,12 +49,17 @@ typedef struct FunctionCall {
     char *identifier;
     Expression **arguments;
     int arg_count;
+    char *module;
 } FunctionCall;
 
 typedef struct AssignmentExpression {
     char *identifier;
     Expression *expr;
 } AssignmentExpression;
+
+typedef struct UseModuleStatement {
+    char *module;
+} UseModuleStatement;
 
 typedef struct Expression {
     ExpressionType type;
@@ -68,6 +74,7 @@ typedef struct Expression {
         IdentifierExpression ident_expr;
         FunctionCall func_call;
         AssignmentExpression assign_expr;
+        UseModuleStatement use_mod_expr;
     } as;
 } Expression;
 

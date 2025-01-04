@@ -1,1 +1,4 @@
-"asd"
+use std;
+
+let x = "Hello, World!";
+std.print(x);
