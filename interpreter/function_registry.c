@@ -98,5 +98,8 @@ void initialise_registry() {
     VariableType print_types[] = { VAR_TYPE_STR  };
     register_function("std", "print", &_pivot_print, 1, print_types);
 
+    VariableType readln_types[] = { };
+    register_function("std", "readln", &_pivot_readln, 0, readln_types);
+
     print_registry();
 }

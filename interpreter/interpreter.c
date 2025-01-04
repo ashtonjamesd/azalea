@@ -65,16 +65,14 @@ void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
     for (int i = 0; i < expr->as.func_call.arg_count; i++) {
         VariableType type = map_expr_type_to_var_type(expr->as.func_call.arguments[i]->type);
         
-        FunctionRegistryEntry *func = get_function("std", "println");
-        printf("%s\n", func->name);
-        printf("%d\n", func->param_count);
-        printf("%d\n", func->param_types[0]);
-
         if (type != entry->param_types[i]) {
             printf("incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
             return;
         }
     }
+
+    entry->func(NULL);
+    return;
 
     if (expr->as.func_call.arguments[0]->type == STRING_LITERAL) {
         entry->func(expr->as.func_call.arguments[0]->as.str_expr.value);
