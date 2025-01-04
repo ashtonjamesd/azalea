@@ -225,6 +225,7 @@ static Expression *parse_statement(ParserState *state) {
 
 void parse_tokens(ParserState *state) {
     while (!is_end(state)) {
+
         Expression *expr = parse_statement(state);
         if (!expr) {
             printf("NULL expression");

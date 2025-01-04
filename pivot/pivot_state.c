@@ -18,7 +18,7 @@ PivotState *init_pivot(int argc, char **argv) {
 
     status->pivot_args = argv;
     status->pivot_args_count = argc;
-    status->debug_mode = 0;
+    status->debug_mode = 1;
 
     return status;
 }

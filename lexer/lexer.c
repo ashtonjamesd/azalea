@@ -169,6 +169,11 @@ static void parse_string(LexerState *state) {
     while (!is_end(state) && get_current(state) != '\"') {
         advance(state);
     }
+    if (get_current(state) != '\"') {
+        raise_defect(state, "unterminated string literal");
+        return;
+    }
+
     advance(state);
 
     int len = (state->current - start - 2);
@@ -224,7 +229,7 @@ void print_lexer(LexerState *state) {
 void tokenize_file(LexerState *state, char *path) {
     read_source(state, path);
     if (state->error != NULL) {
-        printf("%s\n", state->error);
+        printf("%s\n\n", state->error);
         return;
     }
 
