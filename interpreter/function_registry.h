@@ -1,3 +1,5 @@
+#include "symbol_table.h"
+
 #ifndef FUNCTION_REGISTRY_H
 #define FUNCTION_REGISTRY_H
 
@@ -9,6 +11,8 @@ typedef void (*FunctionPointer)(void *args);
 typedef struct FunctionRegistryEntry {
     char *name;
     FunctionPointer func;
+    int param_count;
+    VariableType *param_types;
 } FunctionRegistryEntry;
 
 typedef struct FunctionRegistryModule {
@@ -17,8 +21,8 @@ typedef struct FunctionRegistryModule {
     int function_count;
 } FunctionRegistryModule;
 
-extern void register_function(char *module, char *name, void *func);
-extern FunctionPointer get_function(char *module, const char *name);
+extern void register_function(char *module, char *name, void *func, int param_count, VariableType *param_types);
+extern FunctionRegistryEntry *get_function(char *module, const char *name);
 extern void initialise_registry();
 
 #endif

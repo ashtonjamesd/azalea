@@ -1,4 +1,3 @@
 use std;
 
-let x = "Hello, World!";
-std.print(x);
+std.println("Hello, World!");

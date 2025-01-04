@@ -1,19 +1,21 @@
+use std;
+
 let y = "Hello, World!";
 
 let x = "0";
-println(x);
+std.println(x);
 
 x = "1";
-println(x);
+std.println(x);
 
 x = "2";
-println(x);
+std.println(x);
 
 
-print("x: ");
-println(x);
+std.print("x: ");
+std.println(x);
 
 x = y;
 
-print("y: ");
-println(y);
+std.print("y: ");
+std.println(y);

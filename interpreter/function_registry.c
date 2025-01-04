@@ -25,9 +25,9 @@ void register_module(char *name) {
     }
 }
 
-void register_function(char *module, char *name, void *func) {
+void register_function(char *module, char *name, void *func, int param_count, VariableType *param_types) {
     FunctionRegistryModule *module_entry = NULL;
-    
+
     for (int i = 0; i < module_count; i++) {
         if (strcmp(modules[i].name, module) == 0) {
             module_entry = &modules[i];
@@ -35,25 +35,31 @@ void register_function(char *module, char *name, void *func) {
         }
     }
 
-    if (!module) {
+    if (!module_entry) {
         register_module(module);
         module_entry = &modules[module_count++];
     }
 
+    FunctionRegistryEntry *function_entry = &module_entry->functions[module_entry->function_count];
+    function_entry->name = strdup(name);
+    function_entry->func = (FunctionPointer)func;
+    function_entry->param_count = param_count;
 
-    module_entry->functions[module_entry->function_count].name = strdup(name);
-    module_entry->functions[module_entry->function_count].func = (FunctionPointer)func;
+    function_entry->param_types = (VariableType *)malloc(param_count * sizeof(VariableType));
+    memcpy(function_entry->param_types, param_types, param_count * sizeof(VariableType));
+
     module_entry->function_count++;
 }
 
-FunctionPointer get_function(char *module, const char *name) {
+
+FunctionRegistryEntry *get_function(char *module, const char *name) {
     if (module == NULL) return NULL;
 
     for (int i = 0; i < module_count; i++) {
         if (strcmp(modules[i].name, module) == 0) {
             for (int j = 0; j < modules[i].function_count; j++) {
                 if (strcmp(modules[i].functions[j].name, name) == 0) {
-                    return modules[i].functions[j].func;
+                    return &modules[i].functions[j];
                 }
             }
         }
@@ -62,12 +68,7 @@ FunctionPointer get_function(char *module, const char *name) {
     return NULL;
 }
 
-void initialise_registry() {
-    register_module("std");
-
-    register_function("std", "print", &_pivot_print);
-    register_function("std", "println", &_pivot_println);
-
+void print_registry() {
     printf("\n\n");
     for (int i = 0; i < module_count; i++) {
         printf("Registered Module: '%s' with %d functions", modules[i].name, modules[i].function_count);
@@ -77,8 +78,25 @@ void initialise_registry() {
     for (int i = 0; i < module_count; i++) {
         printf("%s:\n", modules[i].name);
 
-        for (int j = 0; j < modules[j].function_count; j++) {
+        for (int j = 0; j < modules[i].function_count; j++) {
             printf("  Func: %s\n", modules[i].functions[j].name);
+
+            for (int k = 0; k < modules[i].functions[j].param_count; k++) {
+                printf("    Param: %d\n", modules[i].functions[j].param_types[k]);
+            }
         }
     }
+    printf("\n");
+}
+
+void initialise_registry() {
+    register_module("std");
+    
+    VariableType println_types[] = { VAR_TYPE_STR  };
+    register_function("std", "println", &_pivot_println, 1, println_types);
+
+    VariableType print_types[] = { VAR_TYPE_STR  };
+    register_function("std", "print", &_pivot_print, 1, print_types);
+
+    print_registry();
 }

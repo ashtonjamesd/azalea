@@ -3,7 +3,8 @@
 
 typedef enum VariableType {
     VAR_TYPE_STR,
-    VAR_TYPE_INT
+    VAR_TYPE_INT,
+    VAR_TYPE_NULL
 } VariableType;
 
 typedef struct VariableSymbol {
