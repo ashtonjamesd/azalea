@@ -233,8 +233,9 @@ static void next_token(LexerState *state) {
 }
 
 void print_lexer(LexerState *state) {
+    printf("\nTokens:\n");
     for (int i = 0; i < state->token_count; i++) {
-        printf("Token: %s | %d\n", state->tokens[i].lexeme, state->tokens[i].type);
+        printf(" L:%d  Token: %s | %d\n", state->tokens[i].line, state->tokens[i].lexeme, state->tokens[i].type);
     }
 }
 
@@ -246,7 +247,7 @@ void tokenize_file(LexerState *state, char *path) {
     }
 
     while (get_current(state) != '\0') {
-        while (get_current(state) == ' ') {
+        while (get_current(state) == ' ' || get_current(state) == '\t') {
             advance(state);
         }
 

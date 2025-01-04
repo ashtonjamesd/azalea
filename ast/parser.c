@@ -49,7 +49,20 @@ static LexerToken peek(ParserState *state) {
     return state->tokens[state->current + 1];
 }
 
-static inline int expect(ParserState *state, LexerTokenType type, const char *str) {
+static void raise_error(ParserState *state, char *expected, LexerToken token) {
+    size_t error_size = snprintf(NULL, 0, "Expected '%s' but got '%s' on line %d", expected, token.lexeme, token.line) + 1;
+    char *error_message = (char *)malloc(error_size);
+    
+    if (error_message != NULL) {
+        snprintf(error_message, error_size, "Expected '%s' but got '%s' on line %d", expected, token.lexeme, token.line);
+    } else {
+        error_message = "Memory allocation error for error message";
+    }
+
+    state->error = error_message;
+}
+
+static inline int expect(ParserState *state, LexerTokenType type, char *str) {
     LexerToken token = get_current(state);
 
     if (token.type == type) {
@@ -57,16 +70,9 @@ static inline int expect(ParserState *state, LexerTokenType type, const char *st
         return 1;
     }
 
-    size_t error_size = snprintf(NULL, 0, "Expected token: %s on line %d", str, token.line) + 1;
-    state->error = (char *)malloc(error_size);
-    if (state->error != NULL) {
-        snprintf(state->error, error_size, "Expected token: %s on line %d", str, token.line);
-    } else {
-        state->error = "Memory allocation error for error message";
-    }
+    raise_error(state, str, token);
     return 0;
 }
-
 
 static inline Expression *create_expression(ExpressionType type) {
     Expression *expr = (Expression *)malloc(sizeof(Expression));
@@ -121,7 +127,7 @@ static Expression *parse_primary_expression(ParserState *state) {
         return expr;
     }
     else {
-        state->error = "Unknown primary expression";
+        raise_error(state, "expression", token);
         return NULL;
     }
 }
@@ -146,6 +152,9 @@ void free_expression(Expression *expr) {
             }
             free(expr->as.func_call.arguments);
             break;
+        case ASSIGNMENT_EXPR:
+            free(expr->as.assign_expr.identifier);
+            free_expression(expr->as.assign_expr.expr);
         default:
             break;
     }
@@ -179,7 +188,9 @@ static Expression *parse_function_call(ParserState *state) {
         } while (get_current(state).type == TOKEN_COMMA);
     }
 
-    state->current--;
+    if (arg_count != 0) {
+        state->current--;
+    }
 
     if (!expect(state, TOKEN_RIGHT_PAREN, ")")) {
         for (int i = 0; i < arg_count; i++) {
@@ -209,9 +220,13 @@ static Expression *parse_variable_declaration(ParserState *state) {
     if (!expect(state, TOKEN_LET, "let")) return NULL;
 
     LexerToken identifier = get_current(state);
-    advance(state);
+    if (!expect(state, TOKEN_IDENTIFIER, "identifier")) {
+        return NULL;
+    }
 
-    advance(state);
+    if (!expect(state, TOKEN_SINGLE_EQUALS, "=")) {
+        return NULL;
+    }
 
     Expression *expr = create_expression(VARIABLE_DECLARATION);
     expr->as.var_decl.identifier = strdup(identifier.lexeme);
@@ -269,13 +284,8 @@ static Expression *parse_statement(ParserState *state) {
 
 void parse_tokens(ParserState *state) {
     while (!is_end(state)) {
-
         Expression *expr = parse_statement(state);
-        if (!expr) {
-            return;
-        }
-
-        if (state->error != NULL) {
+        if (!expr || state->error != NULL) {
             return;
         }
 

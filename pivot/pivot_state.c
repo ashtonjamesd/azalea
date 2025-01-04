@@ -37,7 +37,7 @@ int pivot_run_main(PivotState *state) {
 
     tokenize_file(lexer_state, source_path);
     if (lexer_state->error != NULL) {
-        printf("%s\n\n", lexer_state->error);
+        printf("\n%s\n\n", lexer_state->error);
         return 1;
     }
 
