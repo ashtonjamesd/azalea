@@ -5,13 +5,23 @@
 #include "symbol_table.h"
 
 void set_variable(SymbolTable *table, const char *name, VariableType type, void *val) {
+    VariableSymbol *existing_var = get_variable(table, name);
+    if (existing_var != NULL) {
+            if (type == VAR_TYPE_STR) {
+            existing_var->as.str_val = strdup((char *)val);
+        } 
+        else if (type == VAR_TYPE_INT) {
+            existing_var->as.int_val = *(int *)val;
+        }
+        return;
+    }
+
     VariableSymbol *symbol = (VariableSymbol *)malloc(sizeof(VariableSymbol));
     symbol->name = strdup(name);
     symbol->type = type;
-
     
     if (type == VAR_TYPE_STR) {
-        symbol->as.str_val = strdup((char *)name);
+        symbol->as.str_val = strdup((char *)val);
     } 
     else if (type == VAR_TYPE_INT) {
         symbol->as.int_val = *(int *)val;

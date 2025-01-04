@@ -37,7 +37,7 @@ int pivot_run_main(PivotState *state) {
 
     tokenize_file(lexer_state, source_path);
     if (lexer_state->error != NULL) {
-        printf("%s", lexer_state->error);
+        printf("%s\n\n", lexer_state->error);
         return 1;
     }
 
@@ -47,11 +47,13 @@ int pivot_run_main(PivotState *state) {
 
     parse_tokens(parser_state);
     if (parser_state->error != NULL) {
-        printf("%s", parser_state->error);
+        printf("%s\n\n", parser_state->error);
         return 1;
     }
 
+    printf("\n\n");
     interpret_ast(parser_state->ast);
+    printf("\n");
     
     // free interpreter
     parser_state_free(parser_state);

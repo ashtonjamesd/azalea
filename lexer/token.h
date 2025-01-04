@@ -31,6 +31,7 @@ typedef enum LexerTokenType {
 
 typedef struct LexerToken {
     char *lexeme;
+    int line;
     LexerTokenType type;
 } LexerToken;
 

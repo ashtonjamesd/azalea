@@ -47,15 +47,20 @@ static void read_source(LexerState *state, char *path) {
     long sz = ftell(fptr);
     rewind(fptr);
 
-    char *buff = (char *)malloc(sz);
+    char *buff = (char *)malloc(sz + 1);
     if (!buff) {
         raise_lexer_error(state, "Error allocating memory for source file");
         fclose(fptr);
         return;
     }
 
-    fread(buff, 1, sz, fptr);
+    size_t read_size = fread(buff, 1, sz, fptr);
     buff[sz] = '\0';
+
+    if (read_size != sz) {
+        printf("Warning: Read size (%zu) does not match expected size (%ld). Cutting off extra characters.\n", read_size, sz);
+        buff[read_size] = '\0'; 
+    }
 
     state->source = strdup(buff);
     
@@ -67,6 +72,7 @@ static void create_token(LexerState *state, char *lexeme, LexerTokenType type) {
     LexerToken *token = (LexerToken *)malloc(sizeof(LexerToken));
     token->lexeme = lexeme;
     token->type = type;
+    token->line = state->line;
 
     if (state->token_count >= state->token_capacity) {
         state->token_capacity *= 2;
@@ -189,12 +195,18 @@ static void parse_string(LexerState *state) {
 
 static void parse_char(LexerState *state) {
     advance(state);
+
     char lexeme[2] = {get_current(state), '\0'};
     create_token(state, strdup(lexeme), TOKEN_CHAR);
 
+    if (lexeme[0] == '\'') {
+        raise_defect(state, "empty char literal");
+        return;
+    }
+
     advance(state);
     if (get_current(state) != '\'') {
-        raise_defect(state, "expected char literal to end with single quote");
+        raise_defect(state, "unterminated char literal");
         return;
     }
 }

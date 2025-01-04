@@ -47,6 +47,13 @@ void print_ast_recursive(Expression *expr, int depth) {
             }
             break;
 
+        case ASSIGNMENT_EXPR:
+            printf("ASSIGNMENT_EXPR: %s\n", expr->as.assign_expr.identifier);
+            if (expr->as.assign_expr.expr != NULL) {
+                print_ast_recursive(expr->as.var_decl.expr, depth + 1);
+            }
+            break;
+
         case FUNCTION_CALL:
             printf("FUNCTION_CALL: %s", expr->as.func_call.identifier);
             break;

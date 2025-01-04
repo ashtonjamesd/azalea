@@ -24,11 +24,27 @@ void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
     if (expr->as.func_call.arguments[0]->type == STRING_LITERAL) {
         func(expr->as.func_call.arguments[0]->as.str_expr.value);
     }
+    else if (expr->as.func_call.arguments[0]->type == IDENTIFIER) {
+        char *name = expr->as.func_call.arguments[0]->as.ident_expr.identifier;
+
+        VariableSymbol *symbol = get_variable(interpreter->symbols, name);
+        if (symbol == NULL) {
+            printf("undefined variable %s", name);
+        }
+        
+        func(symbol->as.str_val);
+    }
 }
 
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
     if (expr->as.var_decl.expr->type == STRING_LITERAL) {
         set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
+    }
+}
+
+void execute_assignment_expression(PivotInterpreter *interpreter, Expression *expr) {
+    if (expr->as.assign_expr.expr->type == STRING_LITERAL) {
+        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
     }
 }
 
@@ -40,6 +56,10 @@ void execute_statement(PivotInterpreter *interpreter, Expression *expr) {
 
         case FUNCTION_CALL:
             execute_function_call(interpreter, expr);
+            break;
+
+        case ASSIGNMENT_EXPR:
+            execute_assignment_expression(interpreter, expr);
             break;
 
         default:

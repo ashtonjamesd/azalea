@@ -29,4 +29,5 @@ FunctionPointer get_function(const char *name) {
 
 void initialise_registry() {
     register_function("print", &_pivot_print);
+    register_function("println", &_pivot_print);
 }

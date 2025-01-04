@@ -45,15 +45,28 @@ static LexerToken get_current(ParserState *state) {
     return state->tokens[state->current];
 }
 
-static inline int expect(ParserState *state, LexerTokenType type) {
-    if (get_current(state).type == type) {
+static LexerToken peek(ParserState *state) {
+    return state->tokens[state->current + 1];
+}
+
+static inline int expect(ParserState *state, LexerTokenType type, const char *str) {
+    LexerToken token = get_current(state);
+
+    if (token.type == type) {
         advance(state);
         return 1;
     }
 
-    state->error = "Unexpected token";
+    size_t error_size = snprintf(NULL, 0, "Expected token: %s on line %d", str, token.line) + 1;
+    state->error = (char *)malloc(error_size);
+    if (state->error != NULL) {
+        snprintf(state->error, error_size, "Expected token: %s on line %d", str, token.line);
+    } else {
+        state->error = "Memory allocation error for error message";
+    }
     return 0;
 }
+
 
 static inline Expression *create_expression(ExpressionType type) {
     Expression *expr = (Expression *)malloc(sizeof(Expression));
@@ -144,7 +157,7 @@ static Expression *parse_function_call(ParserState *state) {
     char *func_name = get_current(state).lexeme;
     advance(state);
 
-    if (!expect(state, TOKEN_LEFT_PAREN)) return NULL;
+    if (!expect(state, TOKEN_LEFT_PAREN, "(")) return NULL;
 
     Expression **arguments = NULL;
     int arg_count = 0;
@@ -168,7 +181,7 @@ static Expression *parse_function_call(ParserState *state) {
 
     state->current--;
 
-    if (!expect(state, TOKEN_RIGHT_PAREN)) {
+    if (!expect(state, TOKEN_RIGHT_PAREN, ")")) {
         for (int i = 0; i < arg_count; i++) {
             free_expression(arguments[i]);
         }
@@ -176,7 +189,7 @@ static Expression *parse_function_call(ParserState *state) {
         return NULL;
     }
 
-    if (!expect(state, TOKEN_SEMI_COLON)) {
+    if (!expect(state, TOKEN_SEMI_COLON, ";")) {
         for (int i = 0; i < arg_count; i++) {
             free_expression(arguments[i]);
         }
@@ -193,7 +206,7 @@ static Expression *parse_function_call(ParserState *state) {
 }
 
 static Expression *parse_variable_declaration(ParserState *state) {
-    if (!expect(state, TOKEN_LET)) return NULL;
+    if (!expect(state, TOKEN_LET, "let")) return NULL;
 
     LexerToken identifier = get_current(state);
     advance(state);
@@ -204,9 +217,40 @@ static Expression *parse_variable_declaration(ParserState *state) {
     expr->as.var_decl.identifier = strdup(identifier.lexeme);
     expr->as.var_decl.expr = parse_primary_expression(state);
 
-    advance(state);
+    if (!expect(state, TOKEN_SEMI_COLON, ";")) {
+        return NULL;
+    }
 
     return expr;
+}
+
+static Expression *parse_assignment_expr(ParserState *state) {
+    LexerToken identifier = get_current(state);
+    advance(state);
+
+    if (!expect(state, TOKEN_SINGLE_EQUALS, "=")) {
+        return NULL;
+    }
+
+    Expression *assigned = parse_primary_expression(state);
+
+    Expression *expr = create_expression(ASSIGNMENT_EXPR);
+    expr->as.assign_expr.expr = assigned;
+    expr->as.assign_expr.identifier = identifier.lexeme;
+
+    if (!expect(state, TOKEN_SEMI_COLON, ";")) {
+        return NULL;
+    }
+
+    return expr;
+}
+
+static Expression *parse_identifier(ParserState *state) {
+    if (peek(state).type == TOKEN_SINGLE_EQUALS) {
+        return parse_assignment_expr(state);
+    } else {
+        return parse_function_call(state);
+    }
 }
 
 static Expression *parse_statement(ParserState *state) {
@@ -216,7 +260,7 @@ static Expression *parse_statement(ParserState *state) {
         case TOKEN_LET:
             return parse_variable_declaration(state);
         case TOKEN_IDENTIFIER:
-            return parse_function_call(state);
+            return parse_identifier(state);
         default:
             return parse_primary_expression(state);
     }
@@ -228,7 +272,6 @@ void parse_tokens(ParserState *state) {
 
         Expression *expr = parse_statement(state);
         if (!expr) {
-            printf("NULL expression");
             return;
         }
 

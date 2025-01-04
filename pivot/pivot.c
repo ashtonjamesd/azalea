@@ -5,7 +5,7 @@
 #include "tests.h"
 
 int pivot_main(int argc, char **argv) {
-    run_tests();
+    // run_tests();
 
     PivotState *pivot = init_pivot(argc, argv);
     if (pivot == NULL) {

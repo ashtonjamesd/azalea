@@ -1,2 +1,4 @@
 let x = "Hello, World!";
-print(x);
+x = "Hello, Pivot!";
+
+println(x);
