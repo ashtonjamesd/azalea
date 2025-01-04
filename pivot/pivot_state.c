@@ -41,7 +41,6 @@ int pivot_run_main(PivotState *state) {
         return 1;
     }
 
-    
     ParserState *parser_state = init_parser(lexer_state->tokens);
     parser_state->debug_mode = state->debug_mode;
 

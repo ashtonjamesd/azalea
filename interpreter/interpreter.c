@@ -43,8 +43,25 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
 }
 
 void execute_assignment_expression(PivotInterpreter *interpreter, Expression *expr) {
-    if (expr->as.assign_expr.expr->type == STRING_LITERAL) {
+    VariableSymbol *var = get_variable(interpreter->symbols, expr->as.assign_expr.identifier);
+    if (var == NULL) {
+        printf("undefined variable %s", expr->as.assign_expr.identifier);
+        return;
+    }
+
+    Expression *assign = expr->as.assign_expr.expr;
+
+    if (assign->type == STRING_LITERAL) {
         set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
+    }
+    else if (assign->type == IDENTIFIER) {
+        VariableSymbol *var = get_variable(interpreter->symbols, assign->as.ident_expr.identifier);
+        if (var == NULL) {
+            printf("undefined variable %s", assign->as.ident_expr.identifier);
+            return;
+        }
+
+        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, var->as.str_val);
     }
 }
 
