@@ -16,7 +16,7 @@ static PivotInterpreter *init_interpreter(Ast *ast) {
     return interpreter;
 }
 
-VariableType map_expr_type_to_var_type(ExpressionType type) {
+static VariableType map_expr_type_to_var_type(ExpressionType type) {
     switch (type) {
         case NUMERIC_LITERAL:
             return VAR_TYPE_INT;
@@ -31,69 +31,7 @@ VariableType map_expr_type_to_var_type(ExpressionType type) {
     }
 }
 
-void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
-    int has_module = 0;
-    
-    for (int i = 0; i < interpreter->used_modules_count; i++) {
-        if (expr->as.func_call.module == NULL) break;
-
-        if (strcmp(interpreter->used_modules[i], expr->as.func_call.module) == 0) {
-            has_module = 1;
-            break;
-        }
-    }
-    
-    if (!has_module && expr->as.func_call.module != NULL) {
-        printf("undefined module '%s'", expr->as.func_call.module);
-        return;
-    }
-
-    FunctionRegistryEntry *entry = get_function(expr->as.func_call.module, expr->as.func_call.identifier);
-    if (entry == NULL) {
-        printf("undefined function '%s'", expr->as.func_call.identifier);
-        return;
-    }
-
-    if (entry->param_count != expr->as.func_call.arg_count) {
-        printf(
-            "function '%s' takes %d parameters, got %d", 
-            expr->as.func_call.identifier,
-            entry->param_count,
-            expr->as.func_call.arg_count
-        );
-        return;
-    }
-
-    for (int i = 0; i < expr->as.func_call.arg_count; i++) {
-        VariableType type = map_expr_type_to_var_type(expr->as.func_call.arguments[i]->type);
-        
-        if (type != entry->param_types[i]) {
-            printf("incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
-            return;
-        }
-    }
-
-    if (expr->as.func_call.arg_count == 0) {
-        entry->func(NULL);
-        return;
-    }
-
-    if (expr->as.func_call.arguments[0]->type == STRING_LITERAL) {
-        entry->func(expr->as.func_call.arguments[0]->as.str_expr.value);
-    }
-    else if (expr->as.func_call.arguments[0]->type == IDENTIFIER) {
-        char *name = expr->as.func_call.arguments[0]->as.ident_expr.identifier;
-
-        VariableSymbol *symbol = get_variable(interpreter->symbols, name);
-        if (symbol == NULL) {
-            printf("undefined variable %s", name);
-        }
-        
-        entry->func(symbol->as.str_val);
-    }
-}
-
-int check_declaration_type(Expression *expr) {
+static int check_declaration_type(Expression *expr) {
     if (expr->as.var_decl.type == VAR_TYPE_STR && expr->as.var_decl.expr->type != STRING_LITERAL) {
         return 0;
     }
@@ -117,6 +55,70 @@ int check_declaration_type(Expression *expr) {
     return 1;
 }
 
+static void *execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
+    int has_module = 0;
+    
+    for (int i = 0; i < interpreter->used_modules_count; i++) {
+        if (expr->as.func_call.module == NULL) break;
+
+        if (strcmp(interpreter->used_modules[i], expr->as.func_call.module) == 0) {
+            has_module = 1;
+            break;
+        }
+    }
+    
+    if (!has_module && expr->as.func_call.module != NULL) {
+        printf("undefined module '%s'", expr->as.func_call.module);
+        return NULL;
+    }
+
+    FunctionRegistryEntry *entry = get_function(expr->as.func_call.module, expr->as.func_call.identifier);
+    if (entry == NULL) {
+        printf("undefined function '%s'", expr->as.func_call.identifier);
+        return NULL;
+    }
+
+    if (entry->param_count != expr->as.func_call.arg_count) {
+        printf(
+            "function '%s' takes %d parameters, got %d", 
+            expr->as.func_call.identifier,
+            entry->param_count,
+            expr->as.func_call.arg_count
+        );
+        
+        return NULL;
+    }
+
+    for (int i = 0; i < expr->as.func_call.arg_count; i++) {
+        VariableType type = map_expr_type_to_var_type(expr->as.func_call.arguments[i]->type);
+        
+        if (type != entry->param_types[i]) {
+            printf("incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
+            return NULL;
+        }
+    }
+
+    if (expr->as.func_call.arg_count == 0) {
+        return entry->func(NULL);
+    }
+
+    if (expr->as.func_call.arguments[0]->type == STRING_LITERAL) {
+        entry->func(expr->as.func_call.arguments[0]->as.str_expr.value);
+    }
+    else if (expr->as.func_call.arguments[0]->type == IDENTIFIER) {
+        char *name = expr->as.func_call.arguments[0]->as.ident_expr.identifier;
+
+        VariableSymbol *symbol = get_variable(interpreter->symbols, name);
+        if (symbol == NULL) {
+            printf("undefined variable %s", name);
+        }
+        
+        return entry->func(symbol->as.str_val);
+    }
+
+    return NULL;
+}
+
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
     VariableSymbol *var = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
     if (var != NULL) {
@@ -134,7 +136,8 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
         set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
     }
     else if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
-        execute_function_call(interpreter, expr->as.var_decl.expr);
+        void *result = execute_function_call(interpreter, expr->as.var_decl.expr);
+        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result);
     }
 }
 

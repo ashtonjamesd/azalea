@@ -25,7 +25,7 @@ void register_module(char *name) {
     }
 }
 
-void register_function(char *module, char *name, void *func, int param_count, VariableType *param_types) {
+void register_function(char *module, char *name, void *func, int param_count, VariableType *param_types, VariableType return_type) {
     FunctionRegistryModule *module_entry = NULL;
 
     for (int i = 0; i < module_count; i++) {
@@ -44,6 +44,7 @@ void register_function(char *module, char *name, void *func, int param_count, Va
     function_entry->name = strdup(name);
     function_entry->func = (FunctionPointer)func;
     function_entry->param_count = param_count;
+    function_entry->return_type = return_type;
 
     function_entry->param_types = (VariableType *)malloc(param_count * sizeof(VariableType));
     memcpy(function_entry->param_types, param_types, param_count * sizeof(VariableType));
@@ -93,13 +94,13 @@ void initialise_registry() {
     register_module("std");
     
     VariableType println_types[] = { VAR_TYPE_STR  };
-    register_function("std", "println", &_pivot_println, 1, println_types);
+    register_function("std", "println", &_pivot_println, 1, println_types, VAR_TYPE_NULL);
 
     VariableType print_types[] = { VAR_TYPE_STR  };
-    register_function("std", "print", &_pivot_print, 1, print_types);
+    register_function("std", "print", &_pivot_print, 1, print_types, VAR_TYPE_NULL);
 
     VariableType readln_types[] = { };
-    register_function("std", "readln", &_pivot_readln, 0, readln_types);
+    register_function("std", "readln", &_pivot_readln, 0, readln_types, VAR_TYPE_STR);
 
     print_registry();
 }

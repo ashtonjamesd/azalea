@@ -1,4 +1,9 @@
 use std;
 
-let x: str = 1;
-std.println("Test");
+std.print("Enter your name: ");
+
+let input = std.readln();
+
+std.print("Your name is ");
+std.print(input);
+std.print("!");
