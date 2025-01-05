@@ -1,1 +1,4 @@
-let x: str = "Hello, World!";
+use std;
+
+let x: str = 1;
+std.println("Test");

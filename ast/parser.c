@@ -231,6 +231,12 @@ static VariableType map_token_type_to_var_type(LexerTokenType type) {
             return VAR_TYPE_INT;
         case TOKEN_STRING_TYPE:
             return VAR_TYPE_STR;
+        case TOKEN_BOOL_TYPE:
+            return VAR_TYPE_BOOL;
+        case TOKEN_FLOAT_TYPE:
+            return VAR_TYPE_FLOAT;
+        case TOKEN_CHAR_TYPE:
+            return VAR_TYPE_CHAR;
         default:
             return VAR_TYPE_NULL;
     }

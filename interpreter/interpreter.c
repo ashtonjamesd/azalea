@@ -93,10 +93,40 @@ void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
     }
 }
 
+int check_declaration_type(Expression *expr) {
+    if (expr->as.var_decl.type == VAR_TYPE_STR && expr->as.var_decl.expr->type != STRING_LITERAL) {
+        return 0;
+    }
+
+    if (expr->as.var_decl.type == VAR_TYPE_INT && expr->as.var_decl.expr->type != NUMERIC_LITERAL) {
+        return 0;
+    }
+
+    if (expr->as.var_decl.type == VAR_TYPE_BOOL && expr->as.var_decl.expr->type != BOOL_LITERAL) {
+        return 0;
+    }
+
+    if (expr->as.var_decl.type == VAR_TYPE_CHAR && expr->as.var_decl.expr->type != CHAR_LITERAL) {
+        return 0;
+    }
+
+    if (expr->as.var_decl.type == VAR_TYPE_FLOAT && expr->as.var_decl.expr->type != FLOAT_LITERAL) {
+        return 0;
+    }
+
+    return 1;
+}
+
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
     VariableSymbol *var = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
     if (var != NULL) {
         printf("redeclaration of variable '%s'", expr->as.var_decl.identifier);
+        return;
+    }
+
+    int is_valid_type = check_declaration_type(expr);
+    if (!is_valid_type) {
+        printf("Mismatching type on variable declaration");
         return;
     }
 
