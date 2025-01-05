@@ -189,10 +189,29 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
 void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
     for (int i = 0; i < interpreter->used_modules_count; i++) {
         if (strcmp(interpreter->used_modules[i], expr->as.use_mod_expr.module) == 0) {
-            set_error(interpreter);
-            printf("module already used");
+            printf("WARNING: module '%s' already used", interpreter->used_modules[i]);
             return;
         }
+    }
+
+    FunctionRegistryModule *module = get_module(expr->as.use_mod_expr.module);
+    if (module == NULL) {
+        set_error(interpreter);
+        printf("module '%s' undefined", expr->as.use_mod_expr.module);
+        return;
+    }
+
+    int module_is_used = 0;
+    for (int i = 0; i < interpreter->ast->expression_count; i++) {
+        if (interpreter->ast->body[i].type == FUNCTION_CALL) {
+            if (strcmp(interpreter->ast->body[i].as.func_call.module, expr->as.use_mod_expr.module) == 0) {
+                module_is_used = 1;
+            }
+        }
+    }
+
+    if (!module_is_used) {
+        printf("WARNING: module '%s' not used", expr->as.use_mod_expr.module);
     }
 
     interpreter->used_modules[interpreter->used_modules_count++] = expr->as.use_mod_expr.module;

@@ -9,6 +9,16 @@ static int module_count = 0;
 
 static FunctionRegistryModule modules[MAX_MODULES];
 
+FunctionRegistryModule *get_module(char *name) {
+    for (int i = 0; i < module_count; i++) {
+        if (strcmp(modules[i].name, name) == 0) {
+            return &modules[i];
+        }
+    }
+
+    return NULL;
+}
+
 void register_module(char *name) {
     for (int i = 0; i < module_count; i++) {
         if (strcmp(modules[i].name, name) == 0) {

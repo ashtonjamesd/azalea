@@ -26,4 +26,6 @@ extern void register_function(char *module, char *name, void *func, int param_co
 extern FunctionRegistryEntry *get_function(char *module, const char *name);
 extern void initialise_registry();
 
+extern FunctionRegistryModule *get_module(char *name);
+
 #endif
