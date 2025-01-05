@@ -1,8 +1,1 @@
-use std;
-
-let x = "asd";
-std.println(x);
-
-let x = "A";
-std.println(x);
-
+let x: str = "Hello, World!";

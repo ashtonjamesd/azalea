@@ -1,3 +1,5 @@
+#include "symbol_table.h"
+
 #ifndef AST_H
 #define AST_H
 
@@ -43,6 +45,7 @@ typedef struct NumericLiteralExpression {
 typedef struct VariableDeclaration {
     char *identifier;
     Expression *expr;
+    VariableType type;
 } VariableDeclaration;
 
 typedef struct FunctionCall {

@@ -9,6 +9,7 @@ typedef enum LexerTokenType {
     TOKEN_CHAR_TYPE,
     TOKEN_FLOAT_TYPE,
     TOKEN_BOOL_TYPE,
+    TOKEN_STRING_TYPE,
 
     TOKEN_IDENTIFIER,
 

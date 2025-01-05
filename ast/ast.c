@@ -41,7 +41,7 @@ void print_ast_recursive(Expression *expr, int depth) {
             break;
 
         case VARIABLE_DECLARATION:
-            printf("VARIABLE_DECLARATION: %s\n", expr->as.var_decl.identifier);
+            printf("VARIABLE_DECLARATION: %s | TYPE: %d\n", expr->as.var_decl.identifier, expr->as.var_decl.type);
             if (expr->as.var_decl.expr != NULL) {
                 print_ast_recursive(expr->as.var_decl.expr, depth + 1);
             }

@@ -4,6 +4,7 @@
 
 #include "parser.h"
 #include "ast.h"
+#include "symbol_table.h"
 
 static Ast *init_ast() {
     Ast *ast = (Ast *)malloc(sizeof(Ast));
@@ -224,6 +225,17 @@ static Expression *parse_function_call(ParserState *state) {
     return expr;
 }
 
+static VariableType map_token_type_to_var_type(LexerTokenType type) {
+    switch (type) {
+        case TOKEN_INT_TYPE:
+            return VAR_TYPE_INT;
+        case TOKEN_STRING_TYPE:
+            return VAR_TYPE_STR;
+        default:
+            return VAR_TYPE_NULL;
+    }
+}
+
 static Expression *parse_variable_declaration(ParserState *state) {
     if (!expect(state, TOKEN_LET, "let")) return NULL;
 
@@ -232,12 +244,22 @@ static Expression *parse_variable_declaration(ParserState *state) {
         return NULL;
     }
 
+    VariableType type = VAR_TYPE_NULL;
+    if (get_current(state).type == TOKEN_COLON) {
+        advance(state);
+
+        LexerToken typeIdentifier = get_current(state);
+        type = map_token_type_to_var_type(typeIdentifier.type);
+        advance(state);
+    }
+
     if (!expect(state, TOKEN_SINGLE_EQUALS, "=")) {
         return NULL;
     }
 
     Expression *expr = create_expression(VARIABLE_DECLARATION);
     expr->as.var_decl.identifier = strdup(identifier.lexeme);
+    expr->as.var_decl.type = type;
 
     if (get_current(state).type == TOKEN_IDENTIFIER && 
         (peek(state).type == TOKEN_DOT || peek(state).type == TOKEN_LEFT_PAREN)) {
