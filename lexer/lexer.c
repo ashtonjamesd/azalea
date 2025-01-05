@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #include "token.h"
-#include "state.h"
+#include "lexer.h"
 
 LexerState *init_lexer_state() {
     LexerState *state = (LexerState *)malloc(sizeof(LexerState));
@@ -169,28 +169,60 @@ static int check_symbols(LexerState *state, char current_token) {
 }
 
 static void parse_string(LexerState *state) {
-    int start = state->current;
-
     advance(state);
+
+    int buff_size = 64;
+    int buff_idx = 0;
+    char *buffer = (char *)malloc(buff_size);
+
     while (!is_end(state) && get_current(state) != '\"') {
+        char c = get_current(state);
+
+        if ('\\' == c) {
+            advance(state);
+            if (is_end(state)) {
+                raise_defect(state, "unterminated escape sequence");
+                free(buffer);
+                return;
+            }
+
+            c = get_current(state);
+            switch (c) {
+                case 'n': c = '\n'; break;
+                case 't': c = '\t'; break;
+                case 'r': c = '\r'; break;
+                case '\"': c = '\"'; break;
+                case '\\': c = '\\'; break;
+                default:
+                    raise_defect(state, "invalid escape sequence");
+                    free(buffer);
+                    return;
+            }
+        }
+
+        if (buff_idx >= buff_size) {
+            buff_size *= 2;
+            char *new_buff = (char *)realloc(buffer, buff_size);
+            buffer = new_buff;
+        }
+
+        buffer[buff_idx++] = c;
+
         advance(state);
     }
-    if (get_current(state) != '\"') {
+
+    if (is_end(state) || get_current(state) != '\"') {
         raise_defect(state, "unterminated string literal");
+        free(buffer);
         return;
     }
 
     advance(state);
+    buffer[buff_idx] = '\0';
 
-    int len = (state->current - start - 2);
-
-    char *lexeme = (char *)malloc(len);
-    strncpy(lexeme, state->source + start + 1, len);
-    
-    lexeme[len] = '\0';
-
-    create_token(state, lexeme, TOKEN_STRING);
     state->current--;
+    create_token(state, buffer, TOKEN_STRING);
+    free(buffer);
 }
 
 static void parse_char(LexerState *state) {
@@ -268,4 +300,9 @@ void tokenize_file(LexerState *state, char *path) {
     create_token(state, "eof", TOKEN_EOF);
 
     if (state->print_debug) print_lexer(state);
+}
+
+void lexer_state_free(LexerState *state) {
+    free(state->source);
+    free(state);
 }

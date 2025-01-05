@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#include "state.h"
 #include "lexer.h"
 #include "tests.h"
 
@@ -8,7 +7,7 @@
 static void test_variable_declaration() {
     LexerState *lexer_state = init_lexer_state();
     lexer_state->print_debug = 0;
-    
+
     tokenize_file(lexer_state, "tests\\samples\\variable_declaration.pv");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_LET);

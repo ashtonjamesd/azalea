@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "pivot_state.h"
-#include "state.h"
 #include "lexer.h"
 #include "parser.h"
 #include "ast.h"

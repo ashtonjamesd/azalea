@@ -20,6 +20,7 @@ typedef enum LexerTokenType {
     TOKEN_RIGHT_PAREN,
     TOKEN_COMMA,
     TOKEN_DOT,
+    TOKEN_ESCAPE_CHAR,
 
     TOKEN_NUMERIC,
     TOKEN_STRING,

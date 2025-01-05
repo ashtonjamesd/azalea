@@ -23,5 +23,6 @@ const LexerTokenMap single_token_type_map[] = {
     {")", TOKEN_RIGHT_PAREN},
     {",", TOKEN_COMMA},
     {".", TOKEN_DOT},
+    {"\\", TOKEN_ESCAPE_CHAR},
     {NULL, -1},
 };
