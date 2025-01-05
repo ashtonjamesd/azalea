@@ -13,6 +13,7 @@ typedef enum VariableType {
 typedef struct VariableSymbol {
     VariableType type;
     char *name;
+    int is_mutable;
 
     union {
         char *str_val;
@@ -27,7 +28,7 @@ typedef struct SymbolTable {
     int capacity;
 } SymbolTable;
 
-extern void set_variable(SymbolTable *symbols, char *name, VariableType type, void* val);
+extern void set_variable(SymbolTable *symbols, char *name, VariableType type, void* val, int is_mutable);
 extern VariableSymbol *get_variable(SymbolTable *symbols, char *name);
 extern SymbolTable *init_symbol_table();
 

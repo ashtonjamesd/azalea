@@ -10,6 +10,7 @@ typedef struct PivotInterpreter {
     SymbolTable *symbols;
     char *used_modules[MAX_MODULES];
     int used_modules_count;
+    int has_error;
 } PivotInterpreter;
 
 extern void interpret_ast(Ast *ast);

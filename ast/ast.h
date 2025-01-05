@@ -46,6 +46,7 @@ typedef struct VariableDeclaration {
     char *identifier;
     Expression *expr;
     VariableType type;
+    int is_mutable;
 } VariableDeclaration;
 
 typedef struct FunctionCall {

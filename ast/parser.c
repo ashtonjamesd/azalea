@@ -245,6 +245,12 @@ static VariableType map_token_type_to_var_type(LexerTokenType type) {
 static Expression *parse_variable_declaration(ParserState *state) {
     if (!expect(state, TOKEN_LET, "let")) return NULL;
 
+    int is_mutable = 0;
+    if (get_current(state).type == TOKEN_MUT) {
+        is_mutable = 1;
+        advance(state);
+    }
+
     LexerToken identifier = get_current(state);
     if (!expect(state, TOKEN_IDENTIFIER, "identifier")) {
         return NULL;
@@ -266,6 +272,7 @@ static Expression *parse_variable_declaration(ParserState *state) {
     Expression *expr = create_expression(VARIABLE_DECLARATION);
     expr->as.var_decl.identifier = strdup(identifier.lexeme);
     expr->as.var_decl.type = type;
+    expr->as.var_decl.is_mutable = is_mutable;
 
     if (get_current(state).type == TOKEN_IDENTIFIER && 
         (peek(state).type == TOKEN_DOT || peek(state).type == TOKEN_LEFT_PAREN)) {

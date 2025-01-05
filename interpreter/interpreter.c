@@ -12,8 +12,13 @@ static PivotInterpreter *init_interpreter(Ast *ast) {
     interpreter->symbols = init_symbol_table();
     interpreter->ast = ast;
     interpreter->used_modules_count = 0;
+    interpreter->has_error = 0;
 
     return interpreter;
+}
+
+static void set_error(PivotInterpreter *interpreter) {
+    interpreter->has_error = 1;
 }
 
 static VariableType map_expr_type_to_var_type(ExpressionType type) {
@@ -69,12 +74,14 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
     
     if (!has_module && expr->as.func_call.module != NULL) {
         printf("undefined module '%s'", expr->as.func_call.module);
+        set_error(interpreter);
         return NULL;
     }
 
     FunctionRegistryEntry *entry = get_function(expr->as.func_call.module, expr->as.func_call.identifier);
     if (entry == NULL) {
         printf("undefined function '%s'", expr->as.func_call.identifier);
+        set_error(interpreter);
         return NULL;
     }
 
@@ -85,6 +92,7 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
             entry->param_count,
             expr->as.func_call.arg_count
         );
+        set_error(interpreter);
         
         return NULL;
     }
@@ -94,6 +102,7 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         
         if (type != entry->param_types[i]) {
             printf("incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
+            set_error(interpreter);
             return NULL;
         }
     }
@@ -111,6 +120,7 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         VariableSymbol *symbol = get_variable(interpreter->symbols, name);
         if (symbol == NULL) {
             printf("undefined variable %s", name);
+            set_error(interpreter);
         }
         
         return entry->func(symbol->as.str_val);
@@ -123,21 +133,25 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
     VariableSymbol *var = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
     if (var != NULL) {
         printf("redeclaration of variable '%s'", expr->as.var_decl.identifier);
+        set_error(interpreter);
         return;
     }
 
     int is_valid_type = check_declaration_type(expr);
     if (!is_valid_type) {
         printf("Mismatching type on variable declaration");
+        set_error(interpreter);
         return;
     }
 
     if (expr->as.var_decl.expr->type == STRING_LITERAL) {
-        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
+        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value, expr->as.var_decl.is_mutable);
     }
     else if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
         void *result = execute_function_call(interpreter, expr->as.var_decl.expr);
-        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result);
+
+        // you can get the function here and check the return type for setting the variable
+        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result, expr->as.var_decl.is_mutable);
     }
 }
 
@@ -145,28 +159,37 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
     VariableSymbol *var = get_variable(interpreter->symbols, expr->as.assign_expr.identifier);
     if (var == NULL) {
         printf("undefined variable %s", expr->as.assign_expr.identifier);
+        set_error(interpreter);
+        return;
+    }
+
+    if (!var->is_mutable) {
+        printf("immutable variable %s cannot be reassigned", expr->as.assign_expr.identifier);
+        set_error(interpreter);
         return;
     }
 
     Expression *assign = expr->as.assign_expr.expr;
 
     if (assign->type == STRING_LITERAL) {
-        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
+        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value, expr->as.var_decl.is_mutable);
     }
     else if (assign->type == IDENTIFIER) {
         VariableSymbol *var = get_variable(interpreter->symbols, assign->as.ident_expr.identifier);
         if (var == NULL) {
             printf("undefined variable %s", assign->as.ident_expr.identifier);
+            set_error(interpreter);
             return;
         }
 
-        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, var->as.str_val);
+        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, var->as.str_val, expr->as.var_decl.is_mutable);
     }
 }
 
 void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
     for (int i = 0; i < interpreter->used_modules_count; i++) {
         if (strcmp(interpreter->used_modules[i], expr->as.use_mod_expr.module) == 0) {
+            set_error(interpreter);
             printf("module already used");
             return;
         }
@@ -203,5 +226,9 @@ void interpret_ast(Ast *ast) {
 
     for (int i = 0; i < interpreter->ast->expression_count; i++) {
         execute_statement(interpreter, &interpreter->ast->body[i]);
+
+        if (interpreter->has_error) {
+            break;
+        }
     }
 }

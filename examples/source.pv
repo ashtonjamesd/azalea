@@ -1,5 +1,6 @@
 use std;
 
 let x = "Hello, World!";
-std.println(x);
+x = "test";
 
+std.println(x);

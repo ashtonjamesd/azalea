@@ -52,7 +52,6 @@ void register_function(char *module, char *name, void *func, int param_count, Va
     module_entry->function_count++;
 }
 
-
 FunctionRegistryEntry *get_function(char *module, const char *name) {
     if (module == NULL) return NULL;
 
