@@ -1,3 +1,8 @@
 use std;
 
-std.readln();
+let x = "asd";
+std.println(x);
+
+let x = "A";
+std.println(x);
+

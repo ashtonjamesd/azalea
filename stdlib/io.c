@@ -11,5 +11,6 @@ void _pivot_println(char *str) {
 }
 
 char *_pivot_readln() {
+    printf("reading line");
     return "test";
 }

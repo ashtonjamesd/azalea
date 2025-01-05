@@ -238,10 +238,17 @@ static Expression *parse_variable_declaration(ParserState *state) {
 
     Expression *expr = create_expression(VARIABLE_DECLARATION);
     expr->as.var_decl.identifier = strdup(identifier.lexeme);
-    expr->as.var_decl.expr = parse_primary_expression(state);
 
-    if (!expect(state, TOKEN_SEMI_COLON, ";")) {
-        return NULL;
+    if (get_current(state).type == TOKEN_IDENTIFIER && 
+        (peek(state).type == TOKEN_DOT || peek(state).type == TOKEN_LEFT_PAREN)) {
+        expr->as.var_decl.expr = parse_function_call(state);
+    }
+    else {
+        expr->as.var_decl.expr = parse_primary_expression(state);
+
+        if (!expect(state, TOKEN_SEMI_COLON, ";")) {
+            return NULL;
+        }
     }
 
     return expr;

@@ -22,6 +22,7 @@ VariableType map_expr_type_to_var_type(ExpressionType type) {
             return VAR_TYPE_INT;
 
         case STRING_LITERAL:
+        case IDENTIFIER:
             return VAR_TYPE_STR;
 
         default:
@@ -32,6 +33,7 @@ VariableType map_expr_type_to_var_type(ExpressionType type) {
 
 void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
     int has_module = 0;
+    
     for (int i = 0; i < interpreter->used_modules_count; i++) {
         if (expr->as.func_call.module == NULL) break;
 
@@ -71,8 +73,10 @@ void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
         }
     }
 
-    entry->func(NULL);
-    return;
+    if (expr->as.func_call.arg_count == 0) {
+        entry->func(NULL);
+        return;
+    }
 
     if (expr->as.func_call.arguments[0]->type == STRING_LITERAL) {
         entry->func(expr->as.func_call.arguments[0]->as.str_expr.value);
@@ -90,8 +94,17 @@ void execute_function_call(PivotInterpreter *interpreter, Expression *expr) {
 }
 
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
+    VariableSymbol *var = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
+    if (var != NULL) {
+        printf("redeclaration of variable '%s'", expr->as.var_decl.identifier);
+        return;
+    }
+
     if (expr->as.var_decl.expr->type == STRING_LITERAL) {
         set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
+    }
+    else if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
+        execute_function_call(interpreter, expr->as.var_decl.expr);
     }
 }
 
