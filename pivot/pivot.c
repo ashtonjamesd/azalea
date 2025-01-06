@@ -6,8 +6,9 @@
 
 int pivot_main(int argc, char **argv) {
     // run_tests();
+    int debug = 0;
 
-    PivotState *pivot = init_pivot(argc, argv);
+    PivotState *pivot = init_pivot(argc, argv, debug);
     if (pivot == NULL) {
         return 1;
     }

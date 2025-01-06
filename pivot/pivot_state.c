@@ -8,7 +8,7 @@
 #include "function_registry.h"
 #include "interpreter.h"
 
-PivotState *init_pivot(int argc, char **argv) {
+PivotState *init_pivot(int argc, char **argv, int debug) {
     PivotState *status = (PivotState *)malloc(sizeof(PivotState));
     if (!status) {
         perror("Error allocating memory for interpreter state");
@@ -17,7 +17,7 @@ PivotState *init_pivot(int argc, char **argv) {
 
     status->pivot_args = argv;
     status->pivot_args_count = argc;
-    status->debug_mode = 1;
+    status->debug_mode = debug;
 
     return status;
 }

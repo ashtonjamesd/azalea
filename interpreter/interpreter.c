@@ -37,6 +37,23 @@ static VariableType map_expr_type_to_var_type(ExpressionType type) {
 }
 
 static int check_declaration_type(Expression *expr) {
+    if (expr->as.var_decl.type == VAR_TYPE_NULL) {
+        return 1;
+    }
+
+    if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
+        FunctionRegistryEntry *entry = get_function(
+            expr->as.var_decl.expr->as.func_call.module,
+            expr->as.var_decl.expr->as.func_call.identifier
+        );
+
+        if (entry->return_type == VAR_TYPE_STR && expr->as.var_decl.type != VAR_TYPE_STR) {
+            return 0;
+        }
+
+        return 1;
+    }
+
     if (expr->as.var_decl.type == VAR_TYPE_STR && expr->as.var_decl.expr->type != STRING_LITERAL) {
         return 0;
     }
@@ -202,9 +219,15 @@ void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
     }
 
     int module_is_used = 0;
+
     for (int i = 0; i < interpreter->ast->expression_count; i++) {
         if (interpreter->ast->body[i].type == FUNCTION_CALL) {
             if (strcmp(interpreter->ast->body[i].as.func_call.module, expr->as.use_mod_expr.module) == 0) {
+                module_is_used = 1;
+            }
+        }
+        else if (interpreter->ast->body[i].type == VARIABLE_DECLARATION) {
+            if (strcmp(interpreter->ast->body[i].as.var_decl.expr->as.func_call.module, expr->as.use_mod_expr.module) == 0) {
                 module_is_used = 1;
             }
         }

@@ -8,7 +8,7 @@ typedef struct PivotState {
     int debug_mode;
 } PivotState;
 
-extern PivotState *init_pivot(int argc, char **argv);
+extern PivotState *init_pivot(int argc, char **argv, int debug);
 extern int pivot_run_main(PivotState *status);
 
 #endif
