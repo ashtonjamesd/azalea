@@ -1,5 +1,3 @@
 use std;
 
-let input = std.println("Hello, World"!);
-
-std.print(input);
+std.print();

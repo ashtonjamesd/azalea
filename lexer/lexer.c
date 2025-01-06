@@ -134,7 +134,7 @@ static void parse_numeric(LexerState *state) {
 static void parse_identifier(LexerState *state) {
     int start = state->current;
 
-    while (!is_end(state) && isalnum(get_current(state))) {
+    while (!is_end(state) && (isalnum(get_current(state)) || get_current(state) == '_')) {
         advance(state);
     }
 

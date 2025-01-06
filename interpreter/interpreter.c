@@ -161,15 +161,17 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
         return;
     }
 
-    FunctionRegistryEntry *entry = get_function(
-        expr->as.var_decl.expr->as.func_call.module,
-        expr->as.var_decl.expr->as.func_call.identifier
-    );
+    if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
+        FunctionRegistryEntry *entry = get_function(
+            expr->as.var_decl.expr->as.func_call.module,
+            expr->as.var_decl.expr->as.func_call.identifier
+        );
 
-    if (entry->return_type == VAR_TYPE_NULL) {
-        set_error(interpreter);
-        printf("cannot assign void to variable");
-        return;
+        if (entry->return_type == VAR_TYPE_NULL) {
+            set_error(interpreter);
+            printf("cannot assign void to variable");
+            return;
+        }
     }
 
     if (expr->as.var_decl.expr->type == STRING_LITERAL) {
@@ -214,7 +216,7 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
     }
 }
 
-void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
+void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {    
     for (int i = 0; i < interpreter->used_modules_count; i++) {
         if (strcmp(interpreter->used_modules[i], expr->as.use_mod_expr.module) == 0) {
             printf("WARNING: module '%s' already used", interpreter->used_modules[i]);
@@ -230,7 +232,6 @@ void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
     }
 
     int module_is_used = 0;
-
     for (int i = 0; i < interpreter->ast->expression_count; i++) {
         if (interpreter->ast->body[i].type == FUNCTION_CALL) {
             if (strcmp(interpreter->ast->body[i].as.func_call.module, expr->as.use_mod_expr.module) == 0) {
@@ -238,8 +239,10 @@ void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
             }
         }
         else if (interpreter->ast->body[i].type == VARIABLE_DECLARATION) {
-            if (strcmp(interpreter->ast->body[i].as.var_decl.expr->as.func_call.module, expr->as.use_mod_expr.module) == 0) {
-                module_is_used = 1;
+            if (interpreter->ast->body[i].as.var_decl.type == FUNCTION_CALL) {
+                if (strcmp(interpreter->ast->body[i].as.var_decl.expr->as.func_call.module, expr->as.use_mod_expr.module) == 0) {
+                    module_is_used = 1;
+                }
             }
         }
     }
