@@ -161,6 +161,17 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
         return;
     }
 
+    FunctionRegistryEntry *entry = get_function(
+        expr->as.var_decl.expr->as.func_call.module,
+        expr->as.var_decl.expr->as.func_call.identifier
+    );
+
+    if (entry->return_type == VAR_TYPE_NULL) {
+        set_error(interpreter);
+        printf("cannot assign void to variable");
+        return;
+    }
+
     if (expr->as.var_decl.expr->type == STRING_LITERAL) {
         set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value, expr->as.var_decl.is_mutable);
     }
