@@ -39,7 +39,7 @@ typedef struct StringLiteralExpression {
 } StringLiteralExpression;
 
 typedef struct NumericLiteralExpression {
-    int value;
+    int *value;
 } NumericLiteralExpression;
 
 typedef struct VariableDeclaration {

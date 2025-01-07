@@ -3,12 +3,12 @@
 
 #include "io.h"
 
-void _pivot_print(char *str) {
-    printf("%s", str);
+void _pivot_print(void *args[]) {
+    printf("%s", (char *)args[0]);
 }
 
-void _pivot_println(char *str) {
-    printf("%s\n", str);
+void _pivot_println(void *args[]) {
+    printf("%s\n", (char *)args[0]);
 }
 
 char *_pivot_readln() {

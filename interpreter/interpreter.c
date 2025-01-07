@@ -124,26 +124,30 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         }
     }
 
-    if (expr->as.func_call.arg_count == 0) {
-        return entry->func(NULL);
-    }
+    void *args[expr->as.func_call.arg_count];
 
-    if (expr->as.func_call.arguments[0]->type == STRING_LITERAL) {
-        entry->func(expr->as.func_call.arguments[0]->as.str_expr.value);
-    }
-    else if (expr->as.func_call.arguments[0]->type == IDENTIFIER) {
-        char *name = expr->as.func_call.arguments[0]->as.ident_expr.identifier;
-
-        VariableSymbol *symbol = get_variable(interpreter->symbols, name);
-        if (symbol == NULL) {
-            printf("undefined variable %s", name);
-            set_error(interpreter);
+    for (int i = 0; i < expr->as.func_call.arg_count; i++) {
+        if (expr->as.func_call.arguments[i]->type == STRING_LITERAL) {
+            args[i] = (void *)expr->as.func_call.arguments[i]->as.str_expr.value;
         }
-        
-        return entry->func(symbol->as.str_val);
+        else if (expr->as.func_call.arguments[i]->type == NUMERIC_LITERAL) {
+            args[i] = (void *)expr->as.func_call.arguments[i]->as.num_expr.value;
+            printf("%d", *expr->as.func_call.arguments[i]->as.num_expr.value);
+        }
+        else if (expr->as.func_call.arguments[i]->type == IDENTIFIER) {
+            char *name = expr->as.func_call.arguments[i]->as.ident_expr.identifier;
+
+            VariableSymbol *symbol = get_variable(interpreter->symbols, name);
+            if (symbol == NULL) {
+                printf("undefined variable %s", name);
+                set_error(interpreter);
+            }
+            
+            args[i] = symbol->as.str_val;
+        }
     }
 
-    return NULL;
+    return entry->func(args);
 }
 
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
@@ -239,7 +243,7 @@ void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
             }
         }
         else if (interpreter->ast->body[i].type == VARIABLE_DECLARATION) {
-            if (interpreter->ast->body[i].as.var_decl.type == FUNCTION_CALL) {
+            if (interpreter->ast->body[i].as.var_decl.expr->type == FUNCTION_CALL) {
                 if (strcmp(interpreter->ast->body[i].as.var_decl.expr->as.func_call.module, expr->as.use_mod_expr.module) == 0) {
                     module_is_used = 1;
                 }

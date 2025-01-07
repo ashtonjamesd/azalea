@@ -4,6 +4,7 @@
 
 #include "function_registry.h"
 #include "io.h"
+#include "math.h"
 
 static int module_count = 0;
 
@@ -99,7 +100,7 @@ void print_registry() {
     printf("\n");
 }
 
-void initialise_registry() {
+void initialise_std() {
     register_module("std");
     
     VariableType println_types[] = { VAR_TYPE_STR  };
@@ -110,6 +111,18 @@ void initialise_registry() {
 
     VariableType readln_types[] = { };
     register_function("std", "readln", &_pivot_readln, 0, readln_types, VAR_TYPE_STR);
+}
 
+void initialise_math() {
+    register_module("math");
+    
+    VariableType exp_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
+    register_function("math", "exp", &_pivot_exp, 2, exp_types, VAR_TYPE_INT);
+}
+
+void initialise_registry() {
+    initialise_std();
+    initialise_math();
+    
     print_registry();
 }

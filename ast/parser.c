@@ -87,7 +87,9 @@ static Expression *parse_primary_expression(ParserState *state) {
 
     if (token.type == TOKEN_NUMERIC) {
         Expression *expr = create_expression(NUMERIC_LITERAL);
-        expr->as.num_expr.value = (int)strtol(token.lexeme, NULL, 10);
+        static int temp_value;
+        expr->as.num_expr.value = &temp_value;
+        *expr->as.num_expr.value = (int)strtol(token.lexeme, NULL, 10);
         advance(state);
 
         return expr;
@@ -176,29 +178,32 @@ static Expression *parse_function_call(ParserState *state) {
 
     if (!expect(state, TOKEN_LEFT_PAREN, "(")) return NULL;
 
-    Expression **arguments = NULL;
     int arg_count = 0;
+    Expression **arguments = malloc((arg_count + 2) * sizeof(Expression *));
 
+    state->current--;
     if (get_current(state).type != TOKEN_RIGHT_PAREN) {
         do {
-            Expression *arg_expr = parse_primary_expression(state);
-            if (!arg_expr) {
-                for (int i = 0; i < arg_count; i++) {
-                    free_expression(arguments[i]);
-                }
-                return NULL;
-            }
-
-            arguments = realloc(arguments, (arg_count + 1) * sizeof(Expression *));
-            arguments[arg_count++] = arg_expr;
-
             advance(state);
+
+            Expression *arg_expr = parse_primary_expression(state);
+            arguments[arg_count] = arg_expr;
+            printf("%d", *arguments[arg_count]->as.num_expr.value);
+            arg_count++;
+
         } while (get_current(state).type == TOKEN_COMMA);
     }
 
-    if (arg_count != 0) {
-        state->current--;
-    }
+    printf("A1: %d", *arguments[0]->as.num_expr.value);
+    printf("A1: %d", *arguments[1]->as.num_expr.value);
+
+    // if (arg_count != 0) {
+    //     state->current--;
+    // }
+
+    // for (int i = 0; i < arg_count; i++) {
+    //     printf("ARGS: %d", *arguments[i]->as.num_expr.value);
+    // }
 
     if (!expect(state, TOKEN_RIGHT_PAREN, ")")) {
         for (int i = 0; i < arg_count; i++) {

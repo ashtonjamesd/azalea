@@ -17,7 +17,7 @@ void print_ast_recursive(Expression *expr, int depth) {
 
     switch (expr->type) {
         case NUMERIC_LITERAL:
-            printf("NUMERIC_LITERAL: %d\n", expr->as.num_expr.value);
+            printf("NUMERIC_LITERAL: %d\n", *expr->as.num_expr.value);
             break;
 
         case IDENTIFIER:
@@ -55,7 +55,10 @@ void print_ast_recursive(Expression *expr, int depth) {
             break;
 
         case FUNCTION_CALL:
-            printf("FUNCTION_CALL: [%s].%s", expr->as.func_call.module, expr->as.func_call.identifier);
+            printf("FUNCTION_CALL: [%s].%s\n", expr->as.func_call.module, expr->as.func_call.identifier);
+            for (int i = 0; i < expr->as.func_call.arg_count; i++) {
+                print_ast_recursive(expr->as.func_call.arguments[i], depth + 1);
+            }
             break;
 
         case USE_MODULE_STMT:
