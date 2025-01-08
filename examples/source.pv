@@ -1,3 +1,5 @@
-use math;
+use string;
+use std;
 
-math.exp(5, 1);
+let x = std.readln();
+std.print(x);

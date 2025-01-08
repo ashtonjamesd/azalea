@@ -5,6 +5,7 @@
 #include "function_registry.h"
 #include "io.h"
 #include "math.h"
+#include "str.h"
 
 static int module_count = 0;
 
@@ -100,29 +101,41 @@ void print_registry() {
     printf("\n");
 }
 
-void initialise_std() {
-    register_module("std");
+void init_std_module() {
+    const char* std_mod = "std";
+    
+    register_module(std_mod);
     
     VariableType println_types[] = { VAR_TYPE_STR  };
-    register_function("std", "println", &_pivot_println, 1, println_types, VAR_TYPE_NULL);
+    register_function(std_mod, "println", &_pivot_println, 1, println_types, VAR_TYPE_NULL);
 
     VariableType print_types[] = { VAR_TYPE_STR  };
-    register_function("std", "print", &_pivot_print, 1, print_types, VAR_TYPE_NULL);
+    register_function(std_mod, "print", &_pivot_print, 1, print_types, VAR_TYPE_NULL);
 
     VariableType readln_types[] = { };
-    register_function("std", "readln", &_pivot_readln, 0, readln_types, VAR_TYPE_STR);
+    register_function(std_mod, "readln", &_pivot_readln, 0, readln_types, VAR_TYPE_STR);
 }
 
-void initialise_math() {
-    register_module("math");
+void init_math_module() {
+    const char* math_mod = "math";
+    register_module(math_mod);
     
     VariableType exp_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
-    register_function("math", "exp", &_pivot_exp, 2, exp_types, VAR_TYPE_INT);
+    register_function(math_mod, "exp", &_pivot_exp, 2, exp_types, VAR_TYPE_INT);
+}
+
+void init_string_module() {
+    const char* string_mod = "string";
+    register_module(string_mod);
+    
+    VariableType concat_types[] = { VAR_TYPE_STR, VAR_TYPE_STR  };
+    register_function(string_mod, "concat", &_pivot_concat, 2, concat_types, VAR_TYPE_STR);
 }
 
 void initialise_registry() {
-    initialise_std();
-    initialise_math();
-    
+    init_std_module();
+    init_math_module();
+    init_string_module();
+
     print_registry();
 }

@@ -164,45 +164,47 @@ void free_expression(Expression *expr) {
     free(expr);
 }
 
-
 static Expression *parse_function_call(ParserState *state) {
     char *module = NULL;
     if (peek(state).type == TOKEN_DOT) {
         module = get_current(state).lexeme;
         advance(state);
     }
-
+    
     if (module != NULL) advance(state);
     char *func_name = get_current(state).lexeme;
     advance(state);
 
     if (!expect(state, TOKEN_LEFT_PAREN, "(")) return NULL;
 
+    Expression **arguments = NULL;
     int arg_count = 0;
-    Expression **arguments = malloc((arg_count + 2) * sizeof(Expression *));
 
     state->current--;
     if (get_current(state).type != TOKEN_RIGHT_PAREN) {
         do {
             advance(state);
+            
+            if (get_current(state).type == TOKEN_RIGHT_PAREN) {
+                break;
+            }
 
             Expression *arg_expr = parse_primary_expression(state);
-            arguments[arg_count] = arg_expr;
-            printf("%d", *arguments[arg_count]->as.num_expr.value);
-            arg_count++;
+
+            arguments = realloc(arguments, (arg_count + 1) * sizeof(Expression *));
+            arguments[arg_count++] = arg_expr;
+
+            // printf("%d", *arguments[arg_count]->as.num_expr.value);
 
         } while (get_current(state).type == TOKEN_COMMA);
     }
-
-    printf("A1: %d", *arguments[0]->as.num_expr.value);
-    printf("A1: %d", *arguments[1]->as.num_expr.value);
 
     // if (arg_count != 0) {
     //     state->current--;
     // }
 
     // for (int i = 0; i < arg_count; i++) {
-    //     printf("ARGS: %d", *arguments[i]->as.num_expr.value);
+    //     printf("STR ARGS: %s", *arguments[i]->as.str_expr.value);
     // }
 
     if (!expect(state, TOKEN_RIGHT_PAREN, ")")) {
@@ -358,6 +360,7 @@ static Expression *parse_statement(ParserState *state) {
 void parse_tokens(ParserState *state) {
     while (!is_end(state)) {
         Expression *expr = parse_statement(state);
+
         if (!expr || state->error != NULL) {
             return;
         }

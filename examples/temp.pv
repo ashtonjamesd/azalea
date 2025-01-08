@@ -1,9 +1,3 @@
-use std;
+use math;
 
-std.print("Enter your name: ");
-
-let input = std.readln();
-
-std.print("Your name is ");
-std.print(input);
-std.print("!");
+math.exp(5, 1);
