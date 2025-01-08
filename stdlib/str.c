@@ -1,4 +1,6 @@
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "str.h"
 
@@ -8,3 +10,18 @@ char *_pivot_concat(void *args[]) {
 
     return strcat(str1, str2);
 }
+
+char *_pivot_from(void *args[]) {
+    int *n = (int *)args[0];
+
+    char *result = (char *)malloc(12 * sizeof(char));
+    if (result == NULL) {
+        perror("Failed to allocate memory");
+        return NULL;
+    }
+
+    snprintf(result, 12, "%d", *n);
+    return result;
+}
+
+// as_upper, as_lower

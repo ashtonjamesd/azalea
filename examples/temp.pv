@@ -1,3 +1,12 @@
-use math;
+use std;
+use string;
 
-math.exp(5, 1);
+let n: i32 = 10;
+std.println("Converting to string");
+
+let mut nStr = string.from(n);
+let output: str = string.concat("output was: ", nStr);
+std.println(output);
+
+nStr = "\nHello, World!";
+std.println(nStr);

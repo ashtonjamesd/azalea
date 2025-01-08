@@ -11,7 +11,7 @@ void set_variable(SymbolTable *table, char *name, VariableType type, void *val, 
             existing_var->as.str_val = strdup((char *)val);
         } 
         else if (type == VAR_TYPE_INT) {
-            existing_var->as.int_val = *(int *)val;
+            existing_var->as.int_val = (int *)val;
         }
         return;
     }
@@ -25,7 +25,7 @@ void set_variable(SymbolTable *table, char *name, VariableType type, void *val, 
         symbol->as.str_val = strdup((char *)val);
     } 
     else if (type == VAR_TYPE_INT) {
-        symbol->as.int_val = *(int *)val;
+        symbol->as.int_val = (int *)val;
     }
 
     if (table->count >= table->capacity) {

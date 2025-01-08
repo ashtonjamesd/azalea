@@ -21,14 +21,26 @@ static void set_error(PivotInterpreter *interpreter) {
     interpreter->has_error = 1;
 }
 
+static ExpressionType map_var_type_to_expr_type(VariableType type) {
+    switch (type) {
+        case VAR_TYPE_INT:
+            return NUMERIC_LITERAL;
+        
+        case STRING_LITERAL:
+            return VAR_TYPE_STR;
+    }
+}
+
 static VariableType map_expr_type_to_var_type(ExpressionType type) {
     switch (type) {
         case NUMERIC_LITERAL:
             return VAR_TYPE_INT;
 
         case STRING_LITERAL:
-        case IDENTIFIER:
             return VAR_TYPE_STR;
+
+        case IDENTIFIER:
+            return VAR_TYPE_NULL;
 
         default:
             printf("Unknown expression type when mapping to variable type");
@@ -48,6 +60,10 @@ static int check_declaration_type(Expression *expr) {
         );
 
         if (entry->return_type == VAR_TYPE_STR && expr->as.var_decl.type != VAR_TYPE_STR) {
+            return 0;
+        }
+
+        if (entry->return_type == VAR_TYPE_INT && expr->as.var_decl.type != VAR_TYPE_INT) {
             return 0;
         }
 
@@ -116,6 +132,15 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
 
     for (int i = 0; i < expr->as.func_call.arg_count; i++) {
         VariableType type = map_expr_type_to_var_type(expr->as.func_call.arguments[i]->type);
+
+        if (expr->as.func_call.arguments[i]->type == IDENTIFIER) {
+            VariableSymbol *var = get_variable(interpreter->symbols, expr->as.func_call.arguments[i]->as.ident_expr.identifier);
+            if (var == NULL) {
+                printf("%s", expr->as.func_call.arguments[i]->as.ident_expr.identifier);
+            }
+
+            type = var->type;
+        }
         
         if (type != entry->param_types[i]) {
             printf("incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
@@ -132,7 +157,6 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         }
         else if (expr->as.func_call.arguments[i]->type == NUMERIC_LITERAL) {
             args[i] = (void *)expr->as.func_call.arguments[i]->as.num_expr.value;
-            printf("%d", *expr->as.func_call.arguments[i]->as.num_expr.value);
         }
         else if (expr->as.func_call.arguments[i]->type == IDENTIFIER) {
             char *name = expr->as.func_call.arguments[i]->as.ident_expr.identifier;
@@ -143,7 +167,15 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
                 set_error(interpreter);
             }
             
-            args[i] = symbol->as.str_val;
+            if (symbol->type == VAR_TYPE_STR) {
+                args[i] = symbol->as.str_val;
+            }
+            else if (symbol->type == VAR_TYPE_INT) {
+                args[i] = symbol->as.int_val;
+            }
+            else {
+                printf("Unable to assign identifier type in function call");
+            }
         }
     }
 
@@ -184,8 +216,29 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
     else if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
         void *result = execute_function_call(interpreter, expr->as.var_decl.expr);
 
-        // you can get the function here and check the return type for setting the variable
-        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result, expr->as.var_decl.is_mutable);
+        FunctionRegistryEntry *func = get_function(expr->as.var_decl.expr->as.func_call.module, expr->as.var_decl.expr->as.func_call.identifier);
+        if (func == NULL) {
+            printf("Null function when setting variable");
+            set_error(interpreter);
+            return;
+        }
+
+        if (func->return_type == VAR_TYPE_STR) {
+            set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result, expr->as.var_decl.is_mutable);
+        }
+        else if (func->return_type == VAR_TYPE_INT) {
+            printf("test");
+            set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, (int *)result, expr->as.var_decl.is_mutable);
+        }
+        else {
+            printf("Unable to set variable type from function. Bad type.");
+        }
+    }
+    else if (expr->as.var_decl.expr->type == NUMERIC_LITERAL) {
+        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, expr->as.var_decl.expr->as.num_expr.value, expr->as.var_decl.is_mutable);
+    }
+    else {
+        printf("Unable to set variable. Bad type.");
     }
 }
 

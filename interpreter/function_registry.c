@@ -102,7 +102,7 @@ void print_registry() {
 }
 
 void init_std_module() {
-    const char* std_mod = "std";
+    char* std_mod = "std";
     
     register_module(std_mod);
     
@@ -117,7 +117,7 @@ void init_std_module() {
 }
 
 void init_math_module() {
-    const char* math_mod = "math";
+    char* math_mod = "math";
     register_module(math_mod);
     
     VariableType exp_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
@@ -125,11 +125,14 @@ void init_math_module() {
 }
 
 void init_string_module() {
-    const char* string_mod = "string";
+    char* string_mod = "string";
     register_module(string_mod);
     
     VariableType concat_types[] = { VAR_TYPE_STR, VAR_TYPE_STR  };
     register_function(string_mod, "concat", &_pivot_concat, 2, concat_types, VAR_TYPE_STR);
+
+    VariableType from_types[] = { VAR_TYPE_INT  };
+    register_function(string_mod, "from", &_pivot_from, 1, from_types, VAR_TYPE_STR);
 }
 
 void initialise_registry() {

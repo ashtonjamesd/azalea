@@ -1,5 +1,5 @@
-use string;
 use std;
+use string;
 
-let x = std.readln();
-std.print(x);
+let xStr = string.from(5);
+std.println(xStr);

@@ -17,7 +17,7 @@ typedef struct VariableSymbol {
 
     union {
         char *str_val;
-        int int_val;
+        int *int_val;
     } as;
 
 } VariableSymbol;
