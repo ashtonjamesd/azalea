@@ -1,5 +1,19 @@
 use std;
+use math;
 use string;
 
-let xStr = string.from(5);
-std.println(xStr);
+let n = 2;
+let exp = 8;
+
+let result = math.exp(n, exp);
+
+let nStr = string.from(n);
+let expStr = string.from(exp);
+
+std.print(nStr);
+std.print(" to the power of ");
+std.print(expStr);
+std.print(" is ");
+
+let xStr = string.from(result);
+std.print(xStr);

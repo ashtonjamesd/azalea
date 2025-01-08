@@ -87,13 +87,14 @@ static Expression *parse_primary_expression(ParserState *state) {
 
     if (token.type == TOKEN_NUMERIC) {
         Expression *expr = create_expression(NUMERIC_LITERAL);
-        static int temp_value;
-        expr->as.num_expr.value = &temp_value;
-        *expr->as.num_expr.value = (int)strtol(token.lexeme, NULL, 10);
-        advance(state);
 
+        expr->as.num_expr.value = malloc(sizeof(int));
+        *expr->as.num_expr.value = (int)strtol(token.lexeme, NULL, 10);
+
+        advance(state);
         return expr;
     }
+
     else if (token.type == TOKEN_IDENTIFIER) {
         Expression *expr = create_expression(IDENTIFIER);
         expr->as.ident_expr.identifier = strdup(token.lexeme);

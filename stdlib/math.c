@@ -1,16 +1,18 @@
-#include "math.h"
-#include<stdio.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-int _pivot_exp(void *args[]) {
-    int total = 1;
+int *_pivot_exp(void *args[]) {
+    int *total = (int *)malloc(sizeof(int));
 
-    // printf("  %d\n", *(int *)args[0]);
-    // printf("  %d", *(int *)args[1]);
-    return 1;
-    // for (int i = 0; i < exp; i++) {
-    //     total *= n;
-    // }
+    *total = 1;
 
-    // printf("%d", total);
-    // return total;
+    int n = *(int *)args[0];
+    int exp = *(int *)args[1];
+
+    for (int i = 0; i < exp; i++) {
+        *total *= n;
+    }
+
+    return total;
 }

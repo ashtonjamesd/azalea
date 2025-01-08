@@ -227,8 +227,9 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
             set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result, expr->as.var_decl.is_mutable);
         }
         else if (func->return_type == VAR_TYPE_INT) {
-            printf("test");
             set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, (int *)result, expr->as.var_decl.is_mutable);
+            VariableSymbol *symbol = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
+
         }
         else {
             printf("Unable to set variable type from function. Bad type.");
