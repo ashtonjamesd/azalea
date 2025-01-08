@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "str.h"
 
@@ -24,4 +25,14 @@ char *_pivot_from(void *args[]) {
     return result;
 }
 
-// as_upper, as_lower
+char *_pivot_as_upper(void *args[]) {
+    char *str = (char *)args[0];
+
+    char *s = str;
+    while (*s) {
+        *s = toupper((unsigned char) *s);
+        s++;
+    }
+
+    return str;
+}

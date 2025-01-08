@@ -133,6 +133,9 @@ void init_string_module() {
 
     VariableType from_types[] = { VAR_TYPE_INT  };
     register_function(string_mod, "from", &_pivot_from, 1, from_types, VAR_TYPE_STR);
+
+    VariableType as_upper_types[] = { VAR_TYPE_STR  };
+    register_function(string_mod, "as_upper", &_pivot_as_upper, 1, as_upper_types, VAR_TYPE_STR);
 }
 
 void initialise_registry() {

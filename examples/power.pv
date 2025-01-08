@@ -1,0 +1,19 @@
+use std;
+use math;
+use string;
+
+let n: i32 = 2;
+let exp: i32 = 8;
+
+let result: i32 = math.exp(n, exp);
+
+let nStr: str = string.from(n);
+let expStr: str = string.from(exp);
+
+std.print(nStr);
+std.print(" to the power of ");
+std.print(expStr);
+std.print(" is ");
+
+let xStr: str' = string.from(result);
+std.print(xStr);
