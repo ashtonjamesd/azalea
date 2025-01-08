@@ -21,16 +21,6 @@ static void set_error(PivotInterpreter *interpreter) {
     interpreter->has_error = 1;
 }
 
-static ExpressionType map_var_type_to_expr_type(VariableType type) {
-    switch (type) {
-        case VAR_TYPE_INT:
-            return NUMERIC_LITERAL;
-        
-        case STRING_LITERAL:
-            return VAR_TYPE_STR;
-    }
-}
-
 static VariableType map_expr_type_to_var_type(ExpressionType type) {
     switch (type) {
         case NUMERIC_LITERAL:
@@ -136,9 +126,10 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         if (expr->as.func_call.arguments[i]->type == IDENTIFIER) {
             VariableSymbol *var = get_variable(interpreter->symbols, expr->as.func_call.arguments[i]->as.ident_expr.identifier);
             if (var == NULL) {
-                printf("%s", expr->as.func_call.arguments[i]->as.ident_expr.identifier);
+                printf("undefined variable '%s' passed as parameter", expr->as.func_call.arguments[i]->as.ident_expr.identifier);
+                set_error(interpreter);
+                return NULL;
             }
-
             type = var->type;
         }
         
@@ -228,7 +219,6 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
         }
         else if (func->return_type == VAR_TYPE_INT) {
             set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, (int *)result, expr->as.var_decl.is_mutable);
-            VariableSymbol *symbol = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
         }
         else {
             printf("Unable to set variable type from function. Bad type.");

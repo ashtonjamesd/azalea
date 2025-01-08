@@ -44,7 +44,7 @@ static void read_source(LexerState *state, char *path) {
     }
 
     fseek(fptr, 0, SEEK_END);
-    long sz = ftell(fptr);
+    unsigned long long sz = ftell(fptr);
     rewind(fptr);
 
     char *buff = (char *)malloc(sz + 1);
@@ -58,7 +58,7 @@ static void read_source(LexerState *state, char *path) {
     buff[sz] = '\0';
 
     if (read_size != sz) {
-        printf("Warning: Read size (%zu) does not match expected size (%ld). Cutting off extra characters.\n", read_size, sz);
+        printf("Warning: Read size (%zu) does not match expected size (%zu). Cutting off extra characters.\n", read_size, sz);
         buff[read_size] = '\0'; 
     }
 

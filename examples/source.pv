@@ -1,7 +1,3 @@
 use std;
-use string;
 
-let n = "Hello, World!";
-let nUpper = string.as_lower(n);
-
-std.println(nUpper);
+std.println("Hello, World!");
