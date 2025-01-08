@@ -15,5 +15,5 @@ std.print(" to the power of ");
 std.print(expStr);
 std.print(" is ");
 
-let xStr: str' = string.from(result);
+let xStr: str = string.from(result);
 std.print(xStr);

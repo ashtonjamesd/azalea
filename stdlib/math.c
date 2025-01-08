@@ -16,3 +16,20 @@ int *_pivot_exp(void *args[]) {
 
     return total;
 }
+
+int *_pivot_max(void *args[]) {
+    int *n1 = (int *)args[0];
+    int *n2 = (int *)args[1];
+
+    if (*n1 > *n2) return n1;
+    return n2; 
+}
+
+int *_pivot_min(void *args[]) {
+    int *n1 = (int *)args[0];
+
+    int *n2 = (int *)args[1];
+
+    if (*n1 > *n2) return n2;
+    return n1;
+}

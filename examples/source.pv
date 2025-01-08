@@ -1,3 +1,12 @@
 use std;
+use math;
+use string;
 
-std.println("Hello, World!");
+let max = math.max(12, 13);
+let maxStr = string.from(max);
+
+let min = math.min(5, 13);
+let minStr = string.from(min);
+
+std.println(maxStr);
+std.println(minStr);

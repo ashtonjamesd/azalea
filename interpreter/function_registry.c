@@ -122,6 +122,12 @@ void init_math_module() {
     
     VariableType exp_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
     register_function(math_mod, "exp", &_pivot_exp, 2, exp_types, VAR_TYPE_INT);
+
+    VariableType max_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
+    register_function(math_mod, "max", &_pivot_max, 2, max_types, VAR_TYPE_INT);
+
+    VariableType min_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
+    register_function(math_mod, "min", &_pivot_min, 2, min_types, VAR_TYPE_INT);
 }
 
 void init_string_module() {

@@ -170,7 +170,13 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         }
     }
 
-    return entry->func(args);
+    void *result = entry->func(args);
+    if (!result && entry->return_type != VAR_TYPE_NULL) {
+        printf("function '%s' returned null", entry->name);
+        set_error(interpreter);
+    }
+
+    return result;
 }
 
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
