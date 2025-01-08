@@ -36,3 +36,15 @@ char *_pivot_as_upper(void *args[]) {
 
     return str;
 }
+
+char *_pivot_as_lower(void *args[]) {
+    char *str = (char *)args[0];
+
+    char *s = str;
+    while (*s) {
+        *s = tolower((unsigned char) *s);
+        s++;
+    }
+
+    return str;
+}

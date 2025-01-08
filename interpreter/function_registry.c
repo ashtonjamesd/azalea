@@ -136,6 +136,9 @@ void init_string_module() {
 
     VariableType as_upper_types[] = { VAR_TYPE_STR  };
     register_function(string_mod, "as_upper", &_pivot_as_upper, 1, as_upper_types, VAR_TYPE_STR);
+
+    VariableType as_lower_types[] = { VAR_TYPE_STR  };
+    register_function(string_mod, "as_lower", &_pivot_as_lower, 1, as_lower_types, VAR_TYPE_STR);
 }
 
 void initialise_registry() {
