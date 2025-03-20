@@ -1,38 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pivot_state.h"
 #include "lexer.h"
 #include "parser.h"
 #include "ast.h"
 #include "function_registry.h"
 #include "interpreter.h"
+#include "azalea_state.h"
 
-PivotState *init_pivot(int argc, char **argv, int debug) {
-    PivotState *status = (PivotState *)malloc(sizeof(PivotState));
+AzaleaState *init_azalea(int argc, char **argv, int debug) {
+    AzaleaState *status = (AzaleaState *)malloc(sizeof(AzaleaState));
     if (!status) {
         perror("Error allocating memory for interpreter state");
         return NULL;
     }
 
-    status->pivot_args = argv;
-    status->pivot_args_count = argc;
+    status->azalea_args = argv;
+    status->azalea_args_count = argc;
     status->debug_mode = debug;
 
     return status;
 }
 
-int pivot_run_main(PivotState *state) {
-    if (state->pivot_args_count < 2) {
+int azalea_run_main(AzaleaState *state) {
+    if (state->azalea_args_count < 2) {
         printf("Expected argument: source file path");
         return 1;
     }
 
-    initialise_registry();
+    initialise_registry(state->debug_mode);
 
-    char *source_path = state->pivot_args[1];
+    char *source_path = state->azalea_args[1];
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = state->debug_mode;
+    lexer_state->debug = state->debug_mode;
 
     tokenize_file(lexer_state, source_path);
     if (lexer_state->error != NULL) {
@@ -49,9 +49,7 @@ int pivot_run_main(PivotState *state) {
         return 1;
     }
 
-    printf("\n\n");
     interpret_ast(parser_state->ast);
-    printf("\n");
     
     // free interpreter
     parser_state_free(parser_state);

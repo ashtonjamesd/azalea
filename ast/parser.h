@@ -9,7 +9,6 @@ typedef struct ParserState {
     int current;
     char *error;
     Ast *ast;
-
     int debug_mode;
 } ParserState;
 

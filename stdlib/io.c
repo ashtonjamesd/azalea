@@ -3,15 +3,15 @@
 
 #include "io.h"
 
-void _pivot_print(void *args[]) {
+void _azalea_print(void *args[]) {
     printf("%s", (char *)args[0]);
 }
 
-void _pivot_println(void *args[]) {
+void _azalea_println(void *args[]) {
     printf("%s\n", (char *)args[0]);
 }
 
-char *_pivot_readln() {
+char *_azalea_readln() {
     size_t buffer_size = 1;
     size_t input_length = 0;
     char *buffer = (char *)malloc(buffer_size);

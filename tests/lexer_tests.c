@@ -6,9 +6,9 @@
 
 static void test_variable_declaration() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
 
-    tokenize_file(lexer_state, "tests\\samples\\variable_declaration.pv");
+    tokenize_file(lexer_state, "tests\\samples\\variable_declaration.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_LET);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_IDENTIFIER);
@@ -21,9 +21,9 @@ static void test_variable_declaration() {
 
 static void test_numeric_literal() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
     
-    tokenize_file(lexer_state, "tests\\samples\\numeric_literal.pv");
+    tokenize_file(lexer_state, "tests\\samples\\numeric_literal.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_NUMERIC);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_SEMI_COLON);
@@ -33,9 +33,9 @@ static void test_numeric_literal() {
 
 static void test_string_literal() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
 
-    tokenize_file(lexer_state, "tests\\samples\\string_literal.pv");
+    tokenize_file(lexer_state, "tests\\samples\\string_literal.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_STRING);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_SEMI_COLON);
@@ -45,9 +45,9 @@ static void test_string_literal() {
 
 static void test_boolean_literal() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
     
-    tokenize_file(lexer_state, "tests\\samples\\boolean_literal.pv");
+    tokenize_file(lexer_state, "tests\\samples\\boolean_literal.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_TRUE);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_SEMI_COLON);
@@ -57,9 +57,9 @@ static void test_boolean_literal() {
 
 static void test_char_literal() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
     
-    tokenize_file(lexer_state, "tests\\samples\\char_literal.pv");
+    tokenize_file(lexer_state, "tests\\samples\\char_literal.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_CHAR);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_SEMI_COLON);
@@ -69,9 +69,9 @@ static void test_char_literal() {
 
 static void test_float_literal() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
     
-    tokenize_file(lexer_state, "tests\\samples\\float_literal.pv");
+    tokenize_file(lexer_state, "tests\\samples\\float_literal.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_FLOAT);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_SEMI_COLON);
@@ -81,9 +81,9 @@ static void test_float_literal() {
 
 static void test_print_func() {
     LexerState *lexer_state = init_lexer_state();
-    lexer_state->print_debug = 0;
+    lexer_state->debug = 0;
     
-    tokenize_file(lexer_state, "tests\\samples\\hello_pivot.pv");
+    tokenize_file(lexer_state, "tests\\samples\\hello_world.azal");
     
     ASSERT_TOKEN_TYPE(lexer_state->tokens[0].type, TOKEN_IDENTIFIER);
     ASSERT_TOKEN_TYPE(lexer_state->tokens[1].type, TOKEN_LEFT_PAREN);

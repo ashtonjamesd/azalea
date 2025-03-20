@@ -1,4 +1,4 @@
-Remove-Item pivot/*.o
+Remove-Item azalea/*.o
 Remove-Item lexer/*.o
 Remove-Item ast/*.o
 Remove-Item tests/*.o

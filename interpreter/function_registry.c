@@ -107,13 +107,13 @@ void init_std_module() {
     register_module(std_mod);
     
     VariableType println_types[] = { VAR_TYPE_STR  };
-    register_function(std_mod, "println", &_pivot_println, 1, println_types, VAR_TYPE_NULL);
+    register_function(std_mod, "println", &_azalea_println, 1, println_types, VAR_TYPE_NULL);
 
     VariableType print_types[] = { VAR_TYPE_STR  };
-    register_function(std_mod, "print", &_pivot_print, 1, print_types, VAR_TYPE_NULL);
+    register_function(std_mod, "print", &_azalea_print, 1, print_types, VAR_TYPE_NULL);
 
-    VariableType readln_types[] = { };
-    register_function(std_mod, "readln", &_pivot_readln, 0, readln_types, VAR_TYPE_STR);
+    VariableType readln_types[] = {0};
+    register_function(std_mod, "readln", &_azalea_readln, 0, readln_types, VAR_TYPE_STR);
 }
 
 void init_math_module() {
@@ -121,13 +121,13 @@ void init_math_module() {
     register_module(math_mod);
     
     VariableType exp_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
-    register_function(math_mod, "exp", &_pivot_exp, 2, exp_types, VAR_TYPE_INT);
+    register_function(math_mod, "exp", &_azalea_exp, 2, exp_types, VAR_TYPE_INT);
 
     VariableType max_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
-    register_function(math_mod, "max", &_pivot_max, 2, max_types, VAR_TYPE_INT);
+    register_function(math_mod, "max", &_azalea_max, 2, max_types, VAR_TYPE_INT);
 
     VariableType min_types[] = { VAR_TYPE_INT, VAR_TYPE_INT  };
-    register_function(math_mod, "min", &_pivot_min, 2, min_types, VAR_TYPE_INT);
+    register_function(math_mod, "min", &_azalea_min, 2, min_types, VAR_TYPE_INT);
 }
 
 void init_string_module() {
@@ -135,22 +135,22 @@ void init_string_module() {
     register_module(string_mod);
     
     VariableType concat_types[] = { VAR_TYPE_STR, VAR_TYPE_STR  };
-    register_function(string_mod, "concat", &_pivot_concat, 2, concat_types, VAR_TYPE_STR);
+    register_function(string_mod, "concat", &_azalea_concat, 2, concat_types, VAR_TYPE_STR);
 
     VariableType from_types[] = { VAR_TYPE_INT  };
-    register_function(string_mod, "from", &_pivot_from, 1, from_types, VAR_TYPE_STR);
+    register_function(string_mod, "from", &_azalea_from, 1, from_types, VAR_TYPE_STR);
 
     VariableType as_upper_types[] = { VAR_TYPE_STR  };
-    register_function(string_mod, "as_upper", &_pivot_as_upper, 1, as_upper_types, VAR_TYPE_STR);
+    register_function(string_mod, "as_upper", &_azalea_as_upper, 1, as_upper_types, VAR_TYPE_STR);
 
     VariableType as_lower_types[] = { VAR_TYPE_STR  };
-    register_function(string_mod, "as_lower", &_pivot_as_lower, 1, as_lower_types, VAR_TYPE_STR);
+    register_function(string_mod, "as_lower", &_azalea_as_lower, 1, as_lower_types, VAR_TYPE_STR);
 }
 
-void initialise_registry() {
+void initialise_registry(int debug) {
     init_std_module();
     init_math_module();
     init_string_module();
 
-    print_registry();
+    if (debug) print_registry();
 }

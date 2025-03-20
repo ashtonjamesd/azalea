@@ -13,7 +13,7 @@ typedef struct LexerState {
     int line;
 
     // set to 1 if the tokens should be written to stdout
-    int print_debug;
+    int debug;
     
 } LexerState;
 

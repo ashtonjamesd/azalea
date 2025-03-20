@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int *_pivot_exp(void *args[]) {
+int *_azalea_exp(void *args[]) {
     int *total = (int *)malloc(sizeof(int));
 
     *total = 1;
@@ -17,7 +17,7 @@ int *_pivot_exp(void *args[]) {
     return total;
 }
 
-int *_pivot_max(void *args[]) {
+int *_azalea_max(void *args[]) {
     int *n1 = (int *)args[0];
     int *n2 = (int *)args[1];
 
@@ -25,9 +25,8 @@ int *_pivot_max(void *args[]) {
     return n2; 
 }
 
-int *_pivot_min(void *args[]) {
+int *_azalea_min(void *args[]) {
     int *n1 = (int *)args[0];
-
     int *n2 = (int *)args[1];
 
     if (*n1 > *n2) return n2;

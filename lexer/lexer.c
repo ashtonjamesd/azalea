@@ -14,7 +14,7 @@ LexerState *init_lexer_state() {
     state->token_capacity = 2;
     state->token_count = 0;
     state->line = 1;
-    state->print_debug = 1;
+    state->debug = 1;
 
     return state;
 }
@@ -37,9 +37,9 @@ static void read_source(LexerState *state, char *path) {
         return;
     }
 
-    char *file_ext = strrchr(path, '.');
-    if (strcmp(file_ext, ".pv") != 0) {
-        raise_lexer_error(state, "Source file must be a valid pivot (.pv) file");
+    char *ext = strrchr(path, '.');
+    if (strcmp(ext, ".azal") != 0) {
+        raise_lexer_error(state, "Source file must be a valid pivot (.azal) file");
         return;
     }
 
@@ -58,7 +58,7 @@ static void read_source(LexerState *state, char *path) {
     buff[sz] = '\0';
 
     if (read_size != sz) {
-        printf("Warning: Read size (%zu) does not match expected size (%zu). Cutting off extra characters.\n", read_size, sz);
+        if (state->debug) printf("Warning: Read size (%zu) does not match expected size (%zu). Cutting off extra characters.\n", read_size, sz);
         buff[read_size] = '\0'; 
     }
 
@@ -299,7 +299,7 @@ void tokenize_file(LexerState *state, char *path) {
 
     create_token(state, "eof", TOKEN_EOF);
 
-    if (state->print_debug) print_lexer(state);
+    if (state->debug) print_lexer(state);
 }
 
 void lexer_state_free(LexerState *state) {
