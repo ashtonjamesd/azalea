@@ -24,7 +24,7 @@ typedef struct FunctionRegistryModule {
 
 extern void register_function(char *module, char *name, void *func, int param_count, VariableType *param_types, VariableType return_type);
 extern FunctionRegistryEntry *get_function(char *module, const char *name);
-extern void initialise_registry();
+extern void initialise_registry(int debug);
 
 extern FunctionRegistryModule *get_module(char *name);
 

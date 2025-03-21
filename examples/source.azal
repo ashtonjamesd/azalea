@@ -2,7 +2,7 @@ use std;
 use math;
 use string;
 
-let max = math.max(12, 13);
+let max = math.maxa(12, 13);
 let maxStr = string.from(max);
 
 let min = math.min(5, 13);

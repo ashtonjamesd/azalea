@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "interpreter.h"
 #include "function_registry.h"
@@ -19,6 +20,31 @@ static PivotInterpreter *init_interpreter(Ast *ast) {
 
 static void set_error(PivotInterpreter *interpreter) {
     interpreter->has_error = 1;
+}
+
+static void raise_warning(const char *message, ...) {
+    va_list args;
+    va_start(args, message);
+
+    printf("\n");
+    
+    printf("warning: ");
+    vprintf(message, args);
+
+    va_end(args);
+}
+
+static void raise_error(PivotInterpreter *interpreter, const char *message, ...) {
+    va_list args;
+    va_start(args, message);
+
+    printf("\n");
+    vprintf(message, args);
+    printf("\n");
+
+    va_end(args);
+
+    set_error(interpreter);
 }
 
 static VariableType map_expr_type_to_var_type(ExpressionType type) {
@@ -96,21 +122,20 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
     }
     
     if (!has_module && expr->as.func_call.module != NULL) {
-        printf("undefined module '%s'", expr->as.func_call.module);
-        set_error(interpreter);
+        raise_error(interpreter, "undefined module '%s'", expr->as.func_call.module);
         return NULL;
     }
-
+    
     FunctionRegistryEntry *entry = get_function(expr->as.func_call.module, expr->as.func_call.identifier);
     if (entry == NULL) {
-        printf("undefined function '%s'", expr->as.func_call.identifier);
-        set_error(interpreter);
+        raise_error(interpreter, "undefined function '%s'", expr->as.func_call.identifier);
         return NULL;
     }
 
     if (entry->param_count != expr->as.func_call.arg_count) {
-        printf(
-            "function '%s' takes %d parameters, got %d", 
+        raise_error(
+            interpreter,
+            "function '%s' takes %d parameters, found %d", 
             expr->as.func_call.identifier,
             entry->param_count,
             expr->as.func_call.arg_count
@@ -126,16 +151,14 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
         if (expr->as.func_call.arguments[i]->type == IDENTIFIER) {
             VariableSymbol *var = get_variable(interpreter->symbols, expr->as.func_call.arguments[i]->as.ident_expr.identifier);
             if (var == NULL) {
-                printf("undefined variable '%s' passed as parameter", expr->as.func_call.arguments[i]->as.ident_expr.identifier);
-                set_error(interpreter);
+                raise_error(interpreter, "undefined variable '%s' passed as parameter", expr->as.func_call.arguments[i]->as.ident_expr.identifier);
                 return NULL;
             }
             type = var->type;
         }
         
         if (type != entry->param_types[i]) {
-            printf("incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
-            set_error(interpreter);
+            raise_error(interpreter, "incorrect type for argument %d of function '%s'", i + 1, expr->as.func_call.identifier);
             return NULL;
         }
     }
@@ -154,8 +177,7 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
 
             VariableSymbol *symbol = get_variable(interpreter->symbols, name);
             if (symbol == NULL) {
-                printf("undefined variable %s", name);
-                set_error(interpreter);
+                raise_error(interpreter, "undefined variable %s", name);
             }
             
             if (symbol->type == VAR_TYPE_STR) {
@@ -182,15 +204,13 @@ static void *execute_function_call(PivotInterpreter *interpreter, Expression *ex
 void execute_variable_declaration(PivotInterpreter *interpreter, Expression *expr) {
     VariableSymbol *var = get_variable(interpreter->symbols, expr->as.var_decl.identifier);
     if (var != NULL) {
-        printf("redeclaration of variable '%s'", expr->as.var_decl.identifier);
-        set_error(interpreter);
+        raise_error(interpreter, "redeclaration of variable '%s'", expr->as.var_decl.identifier);
         return;
     }
 
     int is_valid_type = check_declaration_type(expr);
     if (!is_valid_type) {
-        printf("Mismatching type on variable declaration");
-        set_error(interpreter);
+        raise_error(interpreter, "mismatching type on variable declaration");
         return;
     }
 
@@ -200,9 +220,27 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
             expr->as.var_decl.expr->as.func_call.identifier
         );
 
-        if (entry->return_type == VAR_TYPE_NULL) {
+        if (entry == NULL) {
             set_error(interpreter);
-            printf("cannot assign void to variable");
+            
+            if (expr->as.var_decl.expr->as.func_call.module == NULL) {
+                raise_warning(
+                    "undefined function '%s'", 
+                    expr->as.var_decl.expr->as.func_call.identifier
+                );
+            } else {
+                raise_warning(
+                    "undefined function '%s' in module '%s'", 
+                    expr->as.var_decl.expr->as.func_call.identifier, 
+                    expr->as.var_decl.expr->as.func_call.module
+                );
+            }
+
+            return;
+        }
+
+        if (entry->return_type == VAR_TYPE_NULL) {
+            raise_error(interpreter, "cannot assign void to variable");
             return;
         }
     }
@@ -241,14 +279,12 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
 void execute_assignment_expression(PivotInterpreter *interpreter, Expression *expr) {
     VariableSymbol *var = get_variable(interpreter->symbols, expr->as.assign_expr.identifier);
     if (var == NULL) {
-        printf("undefined variable %s", expr->as.assign_expr.identifier);
-        set_error(interpreter);
+        raise_error(interpreter, "undefined variable %s", expr->as.assign_expr.identifier);
         return;
     }
 
     if (!var->is_mutable) {
-        printf("immutable variable %s cannot be reassigned", expr->as.assign_expr.identifier);
-        set_error(interpreter);
+        raise_error(interpreter, "immutable variable %s cannot be reassigned", expr->as.assign_expr.identifier);
         return;
     }
 
@@ -260,8 +296,7 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
     else if (assign->type == IDENTIFIER) {
         VariableSymbol *var = get_variable(interpreter->symbols, assign->as.ident_expr.identifier);
         if (var == NULL) {
-            printf("undefined variable %s", assign->as.ident_expr.identifier);
-            set_error(interpreter);
+            raise_error(interpreter, "undefined variable %s", assign->as.ident_expr.identifier);
             return;
         }
 
@@ -272,27 +307,30 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
 void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {    
     for (int i = 0; i < interpreter->used_modules_count; i++) {
         if (strcmp(interpreter->used_modules[i], expr->as.use_mod_expr.module) == 0) {
-            printf("WARNING: module '%s' already used", interpreter->used_modules[i]);
+            raise_warning("module '%s' already used", interpreter->used_modules[i]);
             return;
         }
     }
 
     FunctionRegistryModule *module = get_module(expr->as.use_mod_expr.module);
     if (module == NULL) {
-        set_error(interpreter);
-        printf("module '%s' undefined", expr->as.use_mod_expr.module);
+        raise_error(interpreter, "module '%s' undefined", expr->as.use_mod_expr.module);
         return;
     }
 
     int module_is_used = 0;
     for (int i = 0; i < interpreter->ast->expression_count; i++) {
         if (interpreter->ast->body[i].type == FUNCTION_CALL) {
+            if (interpreter->ast->body[i].as.func_call.module == NULL) continue;
+
             if (strcmp(interpreter->ast->body[i].as.func_call.module, expr->as.use_mod_expr.module) == 0) {
                 module_is_used = 1;
             }
         }
         else if (interpreter->ast->body[i].type == VARIABLE_DECLARATION) {
             if (interpreter->ast->body[i].as.var_decl.expr->type == FUNCTION_CALL) {
+                if (interpreter->ast->body[i].as.var_decl.expr->as.func_call.module == NULL) continue;
+
                 if (strcmp(interpreter->ast->body[i].as.var_decl.expr->as.func_call.module, expr->as.use_mod_expr.module) == 0) {
                     module_is_used = 1;
                 }
@@ -301,7 +339,7 @@ void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
     }
 
     if (!module_is_used) {
-        printf("WARNING: module '%s' not used", expr->as.use_mod_expr.module);
+        raise_warning("module '%s' not used", expr->as.use_mod_expr.module);
     }
 
     interpreter->used_modules[interpreter->used_modules_count++] = expr->as.use_mod_expr.module;
@@ -340,4 +378,6 @@ void interpret_ast(Ast *ast) {
             break;
         }
     }
+
+    printf("\n\n");
 }

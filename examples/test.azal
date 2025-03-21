@@ -1,0 +1,3 @@
+use math;
+
+let x = mina(6, 10);
