@@ -28,7 +28,7 @@ typedef struct SymbolTable {
     int capacity;
 } SymbolTable;
 
-extern void set_variable(SymbolTable *symbols, char *name, VariableType type, void* val, int is_mutable);
+extern void set_variable(SymbolTable *symbols, char *name, VariableType type, void* val);
 extern VariableSymbol *get_variable(SymbolTable *symbols, char *name);
 extern SymbolTable *init_symbol_table();
 

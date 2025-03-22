@@ -1,0 +1,19 @@
+def x()
+  let y = 10;
+  y = 10;
+  
+  def y()
+    let y = 10;
+    def y()
+      let y = 10;
+    end
+
+    def y()
+      let y = 10;
+
+      def y()
+        let y = 10;
+      end
+    end
+  end
+end

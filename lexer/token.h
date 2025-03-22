@@ -4,7 +4,8 @@
 typedef enum LexerTokenType {
     TOKEN_LET,
     TOKEN_USE,
-    TOKEN_MUT,
+    TOKEN_DEF,
+    TOKEN_END,
 
     TOKEN_INT_TYPE,
     TOKEN_CHAR_TYPE,

@@ -246,7 +246,7 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
     }
 
     if (expr->as.var_decl.expr->type == STRING_LITERAL) {
-        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value, expr->as.var_decl.is_mutable);
+        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
     }
     else if (expr->as.var_decl.expr->type == FUNCTION_CALL) {
         void *result = execute_function_call(interpreter, expr->as.var_decl.expr);
@@ -259,17 +259,17 @@ void execute_variable_declaration(PivotInterpreter *interpreter, Expression *exp
         }
 
         if (func->return_type == VAR_TYPE_STR) {
-            set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result, expr->as.var_decl.is_mutable);
+            set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_STR, (char *)result);
         }
         else if (func->return_type == VAR_TYPE_INT) {
-            set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, (int *)result, expr->as.var_decl.is_mutable);
+            set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, (int *)result);
         }
         else {
             printf("Unable to set variable type from function. Bad type.");
         }
     }
     else if (expr->as.var_decl.expr->type == NUMERIC_LITERAL) {
-        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, expr->as.var_decl.expr->as.num_expr.value, expr->as.var_decl.is_mutable);
+        set_variable(interpreter->symbols, expr->as.var_decl.identifier, VAR_TYPE_INT, expr->as.var_decl.expr->as.num_expr.value);
     }
     else {
         printf("Unable to set variable. Bad type.");
@@ -291,7 +291,7 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
     Expression *assign = expr->as.assign_expr.expr;
 
     if (assign->type == STRING_LITERAL) {
-        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value, expr->as.var_decl.is_mutable);
+        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, expr->as.var_decl.expr->as.str_expr.value);
     }
     else if (assign->type == IDENTIFIER) {
         VariableSymbol *var = get_variable(interpreter->symbols, assign->as.ident_expr.identifier);
@@ -300,7 +300,7 @@ void execute_assignment_expression(PivotInterpreter *interpreter, Expression *ex
             return;
         }
 
-        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, var->as.str_val, expr->as.var_decl.is_mutable);
+        set_variable(interpreter->symbols, expr->as.assign_expr.identifier, VAR_TYPE_STR, var->as.str_val);
     }
 }
 
@@ -345,6 +345,10 @@ void execute_use_module_stmt(PivotInterpreter *interpreter, Expression *expr) {
     interpreter->used_modules[interpreter->used_modules_count++] = expr->as.use_mod_expr.module;
 }
 
+void execute_function_definition(PivotInterpreter *interpreter, Expression *expr) {
+
+}
+
 void execute_statement(PivotInterpreter *interpreter, Expression *expr) {
     switch (expr->type) {
         case VARIABLE_DECLARATION:
@@ -363,8 +367,12 @@ void execute_statement(PivotInterpreter *interpreter, Expression *expr) {
             execute_use_module_stmt(interpreter, expr);
             break;
 
+        case FUNCTION_DEFINITION:
+            execute_function_definition(interpreter, expr);
+            break;
+
         default:
-            printf("Unknown interpreter expression");
+            printf("Unknown interpreter expression: %d", expr->type);
     }
 }
 

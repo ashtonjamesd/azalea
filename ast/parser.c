@@ -6,6 +6,8 @@
 #include "ast.h"
 #include "symbol_table.h"
 
+static Expression *parse_statement(ParserState *state);
+
 static Ast *init_ast() {
     Ast *ast = (Ast *)malloc(sizeof(Ast));
     if (!ast) return NULL;
@@ -343,6 +345,45 @@ static Expression *parse_use_stmt(ParserState *state) {
     return expr;
 }
 
+static Expression *parse_function_definition(ParserState *state) {
+    advance(state);
+
+    LexerToken identifier = get_current(state);
+    advance(state);
+    
+    if (!expect(state, TOKEN_LEFT_PAREN, "(")) {
+        return NULL;
+    }
+
+    if (!expect(state, TOKEN_RIGHT_PAREN, ")")) {
+        return NULL;
+    }
+
+    Expression *expr = create_expression(FUNCTION_DEFINITION);
+    expr->as.func_def.identifier = identifier.lexeme;
+    expr->as.func_def.statement_count = 0;
+    expr->as.func_def.body = malloc(sizeof(Expression));
+
+    int capacity = 1;
+    while (get_current(state).type != TOKEN_END) {
+        Expression *statement = parse_statement(state);
+        if (expr->as.func_def.statement_count >= capacity) {
+            capacity *= 2;
+            expr->as.func_def.body = realloc(expr->as.func_def.body, sizeof(Expression) * capacity);
+        }
+
+        expr->as.func_def.body[expr->as.func_def.statement_count++] = statement;
+
+        if (get_current(state).type == TOKEN_END) break;
+    }
+
+    if (!expect(state, TOKEN_END, "end")) {
+        return NULL;
+    }
+
+    return expr;
+}
+
 static Expression *parse_statement(ParserState *state) {
     LexerToken token = get_current(state);
 
@@ -353,6 +394,8 @@ static Expression *parse_statement(ParserState *state) {
             return parse_identifier(state);
         case TOKEN_USE:
             return parse_use_stmt(state);
+        case TOKEN_DEF:
+            return parse_function_definition(state);
         default:
             return parse_primary_expression(state);
     }

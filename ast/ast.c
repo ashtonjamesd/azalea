@@ -41,7 +41,7 @@ void print_ast_recursive(Expression *expr, int depth) {
             break;
 
         case VARIABLE_DECLARATION:
-            printf("VARIABLE_DECLARATION: %s | TYPE: %d | mut: %d\n", expr->as.var_decl.identifier, expr->as.var_decl.type, expr->as.var_decl.is_mutable);
+            printf("VARIABLE_DECLARATION: %s | TYPE: %d\n", expr->as.var_decl.identifier, expr->as.var_decl.type);
             if (expr->as.var_decl.expr != NULL) {
                 print_ast_recursive(expr->as.var_decl.expr, depth + 1);
             }
@@ -58,6 +58,13 @@ void print_ast_recursive(Expression *expr, int depth) {
             printf("FUNCTION_CALL: [%s].%s\n", expr->as.func_call.module, expr->as.func_call.identifier);
             for (int i = 0; i < expr->as.func_call.arg_count; i++) {
                 print_ast_recursive(expr->as.func_call.arguments[i], depth + 1);
+            }
+            break;
+
+        case FUNCTION_DEFINITION:
+            printf("FUNCTION DEFINITION: [%s]\n", expr->as.func_def.identifier);
+            for (int i = 0; i < expr->as.func_def.statement_count; i++) {
+                print_ast_recursive(expr->as.func_def.body[i], depth + 1);
             }
             break;
 

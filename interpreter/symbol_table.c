@@ -4,7 +4,7 @@
 
 #include "symbol_table.h"
 
-void set_variable(SymbolTable *table, char *name, VariableType type, void *val, int is_mutable) {
+void set_variable(SymbolTable *table, char *name, VariableType type, void *val) {
     VariableSymbol *existing_var = get_variable(table, name);
     if (existing_var != NULL) {
         if (type == VAR_TYPE_STR) {
@@ -19,7 +19,6 @@ void set_variable(SymbolTable *table, char *name, VariableType type, void *val, 
     VariableSymbol *symbol = (VariableSymbol *)malloc(sizeof(VariableSymbol));
     symbol->name = strdup(name);
     symbol->type = type;
-    symbol->is_mutable = is_mutable;
     
     if (type == VAR_TYPE_STR) {
         symbol->as.str_val = strdup((char *)val);

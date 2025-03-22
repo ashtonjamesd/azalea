@@ -7,7 +7,7 @@
 int pivot_main(int argc, char **argv) {
     run_tests();
 
-    int debug = 0;
+    int debug = 1;
     AzaleaState *azalea = init_azalea(argc, argv, debug);
     if (azalea == NULL) {
         printf("Unable to initialise azalea interpreter");
